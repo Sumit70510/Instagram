@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {Heart, Home, LogOut, MessageCircle, PlusIcon, Search, TrendingUp} from 'lucide-react';
+import {Heart, Home, Info, LogOut, MessageCircle, PlusIcon, Search, TrendingUp} from 'lucide-react';
 import { AvatarFallback ,Avatar,AvatarImage} from './ui/avatar.jsx';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -43,6 +43,10 @@ export default function LeftSidebar() {
       {
        icon : <LogOut/> ,
        text : "Logout"
+      },
+      {
+       icon : <Info/> ,
+       text : "About Us"
       }
     ]
   
@@ -82,6 +86,9 @@ export default function LeftSidebar() {
            navigate(`/profile/${user._id}`); break;
          case 'Messages':
            navigate('/chat'); break;
+         case 'About Us':
+          window.open('https://github.com/Sumit70510', '_blank', 'noopener,noreferrer');
+             break;    
          default:
            // Handle other cases if needed
           break;
@@ -111,8 +118,8 @@ export default function LeftSidebar() {
         {/* <div className='flex flex-col'> */}
         {/* <h1 className='my-8 justify-center font-bold text-xl'>LOGO</h1>   */}
       
-        {isSidebarExpanded?<img src='/Black.jpeg' className='justify-center mt-8 mb-6 w-25 h-12'/>:
-        <img src='/LOGO.webp' className='justify-center mx-2 my-9 w-8 h-8'/>}
+        {isSidebarExpanded?<img src='/Black.png' className='justify-center mt-8 mb-6 w-25 h-12'/>:
+        <img src='/LOGO.png' className='justify-center mx-2 my-9 w-8 h-8'/>}
       
         <div>
           {

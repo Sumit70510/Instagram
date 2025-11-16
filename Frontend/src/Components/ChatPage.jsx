@@ -135,7 +135,9 @@ export default function ChatPage() {
           <div
             key={suggestedUser._id}
             className="flex gap-3 items-center p-3 hover:bg-zinc-700 cursor-pointer w-full"
-            onClick={() => dispatch(setSelectedUser(suggestedUser))}
+            onClick={() => {
+              dispatch(setMessages(null))
+              dispatch(setSelectedUser(suggestedUser))}}
           >
             <Avatar className="w-14 h-14 text-black">
               <AvatarImage src={suggestedUser?.profilePicture} alt="Profile_image" />
@@ -165,7 +167,10 @@ export default function ChatPage() {
       <div className="flex gap-3 items-center px-3 py-2 fixed w-full border-b border-zinc-700 bg-zinc-900 z-9">
         <button
           className="text-lg font-bold mr-2"
-          onClick={() => dispatch(setSelectedUser(null))}
+          onClick={() => {dispatch(setSelectedUser(null))
+            dispatch(setMessages(null)); 
+           }
+          }
         >
           <ArrowLeft/>
         </button>

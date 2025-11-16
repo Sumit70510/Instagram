@@ -1,4 +1,4 @@
-import { Heart, Home, LogOut, MessageCircle, PlusIcon, Search, TrendingUp } from 'lucide-react';
+import { Heart, Home, Info, LogOut, MessageCircle, PlusIcon, Search, TrendingUp } from 'lucide-react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -24,24 +24,24 @@ export default function MobileUI() {
   const headerItems = [
       //   {icon : <TrendingUp/>,
       //    text : "Explore" },
-       {icon : <PlusIcon className='text-white'/>,
+       {icon : <PlusIcon/>,
        text : "Create" },
-      {icon : <Heart className='text-white'/>,
+      {icon : <Heart/>,
        text : "Notifications" },
        
   ];
   
   const footerItems = [
-      {icon : <Home className='text-white'/>,
+      {icon : <Home/>,
        text : "Home" },
-      {icon : <Search className='text-white'/>,
+      {icon : <Search/>,
        text : "Search" },
         {
-         icon : <LogOut className='text-white'/> ,
+         icon : <LogOut/> ,
          text : "Logout"
         }
       ,
-       {icon : <MessageCircle className='text-white'/>,
+       {icon : <MessageCircle/>,
          text : "Messages" }, 
       {icon : (
               <Avatar className='w-6 h-6 text-black'>
@@ -82,7 +82,8 @@ export default function MobileUI() {
          case 'Create':
            setOpen(true);   break;
          case 'Home':
-           navigate('/');   break;
+           navigate('/'); 
+             break;
          case 'Profile':
            navigate(`/profile/${user._id}`); break;
          case 'Messages':
@@ -100,7 +101,12 @@ export default function MobileUI() {
     <div className="flex flex-col h-screen">
   <header className="h-12 flex items-center justify-between px-4 border-b border-zinc-700 bg-zinc-900 bg-opacity-70 fixed top-0 left-0 right-0 z-10">
   {/* <h1 className="text-lg font-bold text-white">LOGO</h1> */}
-  <img src='/white.png' className='w-30 h-12'/>
+  <div className='flex gap-1 items-center'>
+   <img src='/white.png' className='w-30 h-12'/>
+     <a href='https://github.com/Sumit70510' rel='noreferrer' title='About The Developer' target='_blank'>
+        <Info/>
+      </a> 
+  </div>
   <div className="flex items-center gap-3 relative">
     {headerItems.map((item, index) => (
       item.text === 'Notifications' ? (

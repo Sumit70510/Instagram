@@ -24,7 +24,7 @@ export default function CommentDialog({open,setOpen,post}) {
   const [isFollowing,setIsFollowing] = useState(false);
   
   useEffect(() => {
-  console.log("selectedPost updated:", selectedPost);
+  // console.log("selectedPost updated:", selectedPost);
   if (selectedPost) {
     setComment(selectedPost?.comments || []);
   }
