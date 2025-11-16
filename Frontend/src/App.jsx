@@ -15,7 +15,6 @@ import { setOnlineUsers } from './Redux/chatSlice.js';
 import { setLikeNotification } from './Redux/rtnSlice.js';
 import ProtectedRoutes from './Components/ProtectedRoutes.jsx';
 import MobileComments from './Components/MobileComments.jsx';
-import MobileChatPage from './Components/MobileChatPage.jsx';
 
 const socketURL = import.meta.env.VITE_URL;
 
