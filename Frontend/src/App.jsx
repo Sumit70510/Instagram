@@ -61,13 +61,7 @@ const browserRouter = createBrowserRouter([
             element : <ProtectedRoutes>
                  <MobileComments/>
             </ProtectedRoutes> 
-          },    
-          {
-            path : '/chat/mobile',
-            element : <ProtectedRoutes>
-                 <MobileChatPage/>
-            </ProtectedRoutes> 
-          },    
+          }
           ,{
       path    : '/login',
       element : <Login/> }
