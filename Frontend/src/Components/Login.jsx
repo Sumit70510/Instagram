@@ -72,7 +72,7 @@ export default function Login() {
         'bg-white text-black border  rounded-lg mx-1'}`} 
         onSubmit={loginHandler}>
            <div className='my-4 flex flex-col items-center'>
-             <img src='/Black.jpeg' className='w-30 h-12'/>
+             <img src='/Black.png' className='w-30 h-12'/>
              <p className='text-sm text-center'>
                Login To See Photos & Videos From Your Friends 
              </p>

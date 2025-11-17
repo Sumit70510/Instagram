@@ -62,7 +62,7 @@ export default function Signup()
      <div className='flex items-center w-screen h-screen justify-center bg-linear-to-r from-[#141E30] to-[#243B55]'>
         <form className='shadow-lg flex flex-col gap-5 p-4 bg-white text-black border  rounded-lg mx-1 ' onSubmit={signupHandler}>
            <div className='my-4 flex flex-col items-center'>
-             <img src='/Black.jpeg' className='w-30 h-12'/>
+             <img src='/Black.png' className='w-30 h-12'/>
              <p className='text-sm text-center'>
                Signup To See Photos & Videos From Your Friends 
              </p>
