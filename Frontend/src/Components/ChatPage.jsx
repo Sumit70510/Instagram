@@ -14,8 +14,13 @@ export default function ChatPage() {
   const dispatch = useDispatch();
   const [selected, setSelected] = useState("");
   const [textMessage, setTextMessage] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const { onlineUsers, messages } = useSelector(store => store.chat);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 690);
+  
+  const filteredUsers = suggestedUsers?.filter((user) =>
+    user.username.toLowerCase().includes(searchInput.toLowerCase())
+  ) || [];
   
   const sendMessageHandler = async (recieverId) => {
     if (!textMessage.trim()) {
@@ -55,9 +60,16 @@ export default function ChatPage() {
       {!isMobile && (
         <section className="w-full md:w-1/4 lg:w-1/4 sm:w-1/2 py-8 border-r border-gray-300 overflow-x-hidden hide-scrollbar">
           <h1 className="font-bold mb-4 px-3 text-xl">{user?.username}</h1>
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full mx-auto mb-4 px-3 py-2 mr-3 border border-gray-300 rounded-lg focus:outline-none focus-visible:ring-transparent"
+          />
           <hr className="mb-4 border-gray-300" />
-          <div className="h-[80vh]">
-            {suggestedUsers?.map((suggestedUser) => {
+          <div className="h-[80vh] overflow-y-auto hide-scrollbar">
+            {filteredUsers?.map((suggestedUser) => {
               const isOnline = onlineUsers?.includes(suggestedUser?._id);
               return (
                 <div
@@ -125,10 +137,17 @@ export default function ChatPage() {
 ) : (
 <div className="w-screen h-full">
   {!selectedUser ? (
-    <section className="flex flex-col h-full w-full overflow-x-hidden overflow-y-scroll hide-scrollbar bg-zinc-900">
-      {/* <h1 className="font-bold mb-4 px-3 text-xl text-white mt-4">{user?.username}</h1> */}
-      <hr className=" border-zinc-700" />
-      {suggestedUsers?.map((suggestedUser) => {
+    <section className="flex flex-col h-full w-full overflow-x-hidden bg-zinc-900">
+      <div className="sticky top-0 bg-zinc-900 z-10 p-3 border-b border-zinc-700">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-zinc-800 text-white placeholder-zinc-400 border border-zinc-700 focus:outline-none focus-visible:ring-transparent"
+        />
+      </div>
+      {filteredUsers?.map((suggestedUser) => {
         const isOnline = onlineUsers?.includes(suggestedUser?._id);
         return (
           <>

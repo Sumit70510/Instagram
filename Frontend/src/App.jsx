@@ -15,6 +15,7 @@ import { setOnlineUsers } from './Redux/chatSlice.js';
 import { setLikeNotification } from './Redux/rtnSlice.js';
 import ProtectedRoutes from './Components/ProtectedRoutes.jsx';
 import MobileComments from './Components/MobileComments.jsx';
+import SearchUser from './Components/SearchUser.jsx';
 
 const socketURL = import.meta.env.VITE_URL;
 
@@ -52,22 +53,70 @@ const browserRouter = createBrowserRouter([
                     <ProtectedRoutes>
                       <ChatPage/>
                     </ProtectedRoutes>
+           },
+           {
+            path  :'/Search',
+            element : 
+                    <ProtectedRoutes>
+                      <SearchUser/>
+                    </ProtectedRoutes>
            }
           ]}
-          ,
-          {
-            path : '/:postId/comments',
-            element : <ProtectedRoutes>
-                 <MobileComments/>
-            </ProtectedRoutes> 
+          // ,
+      
+      //     {
+      // path     : '/',
+      // element  : <ProtectedRoutes>
+      //              <MainLayout/>
+      //            </ProtectedRoutes>,
+      // children : [ 
+      //     {
+      //      path : '/',
+      //      element : 
+      //               <ProtectedRoutes>
+      //                 <Home/> 
+      //               </ProtectedRoutes>
+      //     }]}
+          
+          
+          
+          // ,{
+          //  path : '/profile/:id' ,
+          //  element : 
+          //           <ProtectedRoutes>
+          //             <Profile/>
+          //           </ProtectedRoutes>
+          // },
+          //  {
+          //  path  :'/account/edit',
+          //  element : 
+          //          <ProtectedRoutes> 
+          //            <EditProfile/>
+          //          </ProtectedRoutes>
+          //  },
+          //  {
+          //   path  :'/chat',
+          //   element : 
+          //           <ProtectedRoutes>
+          //             <ChatPage/>
+          //           </ProtectedRoutes>
+          //  }
+      ,{
+        path : '/:postId/comments',
+        element : 
+          <ProtectedRoutes>
+            <MobileComments/>
+          </ProtectedRoutes> 
           }
-          ,{
+          
+      ,{
       path    : '/login',
       element : <Login/> }
-    ,{
+      
+      ,{
       path    :'/signup',
       element : <Signup/> 
-     },      
+      },      
   ]);
 
 function App() {

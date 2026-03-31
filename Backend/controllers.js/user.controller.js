@@ -272,3 +272,42 @@ export const followOrUnfollow = async(req,res) =>
        return res.status(500).json({ message: "Internal Server Error", success: false });
      }    
   }  
+
+export const searchUsers = async(req,res) =>
+  {
+    try
+     {
+       const { query } = req.query;
+       
+       if(!query || query.trim() === "")
+        {
+          return res.status(400).json({
+            message: "Search query is required",
+            success: false
+          });
+        }
+
+       const users = await User.find({
+         username: { $regex: query, $options: "i" }
+       }).select("-password");
+
+       if(users.length === 0)
+        {
+          return res.status(200).json({
+            message: "No users found",
+            success: true,
+            users: []
+          });
+        }
+
+       return res.status(200).json({
+         success: true,
+         users
+       });
+     }
+    catch(error)
+     {
+       console.log(error);
+       return res.status(500).json({ message: "Internal Server Error", success: false });
+     }
+  }

@@ -88,6 +88,8 @@ export default function MobileUI() {
            navigate(`/profile/${user._id}`); break;
          case 'Messages':
            navigate('/chat'); break;
+          case 'Search' :
+            navigate('/Search'); break;  
          default:
            // Handle other cases if needed
           break;

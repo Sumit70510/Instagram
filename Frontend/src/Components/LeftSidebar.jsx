@@ -86,7 +86,9 @@ export default function LeftSidebar() {
            navigate(`/profile/${user._id}`); break;
          case 'Messages':
            navigate('/chat'); break;
-         case 'About Us':
+         case 'Search' :
+            navigate('/Search'); break;
+          case 'About Us':
           window.open('https://github.com/Sumit70510', '_blank', 'noopener,noreferrer');
              break;    
          default:
