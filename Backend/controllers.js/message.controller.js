@@ -73,3 +73,41 @@ export const getMessage = async(req,res)=>
        res.status(500).json({message:'Internal Server Error',success:false});  
      }  
  }
+
+export const getAllConversations = async(req,res)=>
+ {
+    try 
+     {
+       const userId = req.id;
+       
+       const conversations = await Conversation.find({participants:userId})
+                              .populate({
+                                 path: "participants",
+                                 select: "username profilePicture bio followers _id",
+                                 match: {_id: {$ne: userId}}
+                              })
+                              .populate({
+                                 path: "messages",
+                                 options: { sort: {createdAt: -1}, limit: 1 }
+                              })
+                              .sort({updatedAt: -1});
+       
+       if(!conversations || conversations.length === 0)
+        { 
+          return res.status(200).json({
+             success: true,
+             conversations: []
+          }); 
+        }
+       
+       return res.status(200).json({
+          success: true,
+          conversations
+       });
+     }
+    catch(error)
+     {
+       console.log(error);
+       res.status(500).json({message:'Internal Server Error',success:false});  
+     }  
+ }

@@ -16,7 +16,9 @@ export default function Messages({ selectedUser }) {
   const messagesEndRef = useRef(null);
   
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (Array.isArray(messages) && messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
     const handleResize = () => setIsMobile(window.innerWidth < 690);
     window.addEventListener('resize', handleResize);
   return () => {
@@ -25,8 +27,8 @@ export default function Messages({ selectedUser }) {
   }, [messages,]);
 
   return (
-    <div className="overflow-y-auto hide-scrollbar flex-1 mt-12 p-4">
-      <div className="flex justify-center">
+    <div className="overflow-y-auto hide-scrollbar flex-1 p-4 mt-14 mb-14">
+      <div className="flex justify-center mb-4">
         <div className="flex flex-col items-center justify-center">
           <Avatar className="w-20 h-20 text-black">
             <AvatarImage src={selectedUser?.profilePicture} alt="Profile_image" />
