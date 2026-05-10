@@ -1,7 +1,7 @@
 import React,{useEffect, useState} from 'react';
 import { Button } from './ui/button.jsx';
 import {Input} from './ui/input.jsx'
-import axios from 'axios';
+import api from '../Lib/api.js';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -30,9 +30,8 @@ export default function Signup()
       try
        {
           setloading(true);
-          const res = await axios.post('/api/v1/user/register',input,{
-                headers : { "content-type" : 'application/json' },
-                withCredentials : true });    
+          const res = await api.post('/user/register',input,{
+                headers : { "content-type" : 'application/json' } });    
           if(res.data.success)
            {
              navigate('/login');

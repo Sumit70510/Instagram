@@ -121,8 +121,10 @@ export const logout = async(req,res)=>
   {
     try
      {
-       return res.cookie("token","",{maxAge:0}).
-       json({
+
+       return res.clearCookie("token",
+         {httpOnly: true,sameSite: "strict"})
+        .json({
          message : "Logged Out Successfully",
          success : true
        });  

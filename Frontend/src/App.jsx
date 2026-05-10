@@ -20,104 +20,32 @@ import SearchUser from './Components/SearchUser.jsx';
 const socketURL = import.meta.env.VITE_URL;
 
 const browserRouter = createBrowserRouter([
-     {
-      path     : '/',
-      element  : <ProtectedRoutes>
-                   <MainLayout/>
-                 </ProtectedRoutes>,
-      children : [ 
-          {
-           path : '/',
-           element : 
-                    <ProtectedRoutes>
-                      <Home/> 
-                    </ProtectedRoutes>
-          }
-         ,{
-           path : '/profile/:id' ,
-           element : 
-                    <ProtectedRoutes>
-                      <Profile/>
-                    </ProtectedRoutes>
-          },
-           {
-           path  :'/account/edit',
-           element : 
-                   <ProtectedRoutes> 
-                     <EditProfile/>
-                   </ProtectedRoutes>
-           },
-           {
-            path  :'/chat',
-            element : 
-                    <ProtectedRoutes>
-                      <ChatPage/>
-                    </ProtectedRoutes>
-           },
-           {
-            path  :'/Search',
-            element : 
-                    <ProtectedRoutes>
-                      <SearchUser/>
-                    </ProtectedRoutes>
-           }
-          ]}
-          // ,
-      
-      //     {
-      // path     : '/',
-      // element  : <ProtectedRoutes>
-      //              <MainLayout/>
-      //            </ProtectedRoutes>,
-      // children : [ 
-      //     {
-      //      path : '/',
-      //      element : 
-      //               <ProtectedRoutes>
-      //                 <Home/> 
-      //               </ProtectedRoutes>
-      //     }]}
-          
-          
-          
-          // ,{
-          //  path : '/profile/:id' ,
-          //  element : 
-          //           <ProtectedRoutes>
-          //             <Profile/>
-          //           </ProtectedRoutes>
-          // },
-          //  {
-          //  path  :'/account/edit',
-          //  element : 
-          //          <ProtectedRoutes> 
-          //            <EditProfile/>
-          //          </ProtectedRoutes>
-          //  },
-          //  {
-          //   path  :'/chat',
-          //   element : 
-          //           <ProtectedRoutes>
-          //             <ChatPage/>
-          //           </ProtectedRoutes>
-          //  }
-      ,{
-        path : '/:postId/comments',
-        element : 
-          <ProtectedRoutes>
-            <MobileComments/>
-          </ProtectedRoutes> 
-          }
-          
-      ,{
-      path    : '/login',
-      element : <Login/> }
-      
-      ,{
-      path    :'/signup',
-      element : <Signup/> 
-      },      
-  ]);
+  {
+    path: '/',
+    element: (
+      <ProtectedRoutes>
+        <MainLayout />
+      </ProtectedRoutes>
+    ),
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'profile/:id', element: <Profile /> },
+      { path: 'account/edit', element: <EditProfile /> },
+      { path: 'chat', element: <ChatPage /> },
+      { path: 'search', element: <SearchUser /> }
+    ]
+  },
+  {
+    path: '/:postId/comments',
+    element: (
+      <ProtectedRoutes>
+        <MobileComments />
+      </ProtectedRoutes>
+    )
+  },
+  { path: '/login', element: <Login /> },
+  { path: '/signup', element: <Signup /> }
+]);
 
 function App() {
   
@@ -125,46 +53,41 @@ function App() {
   const dispatch = useDispatch();
   const {socket} = useSelector(store=>store.socketio);
   
-  useEffect(()=>
-  {
-    if(user)
-     {
-       const socketio = io(socketURL,
-         {query : {
-           userId : user?._id
-         } ,
-         transports : ['websocket']
-       });
-       
-       dispatch(setSocket(socketio));
-       socketio.on('getOnlineUsers',(onlineUsers)=>{
-         dispatch(setOnlineUsers(onlineUsers));
-       });
-       
-       socketio.on('notification',(notification)=>{
-        dispatch(setLikeNotification(notification));
-       });
+useEffect(() => {
+  if (!user) {
+    if (socket) {
+      socket.off('getOnlineUsers');
+      socket.off('notification');
+      socket.close();
+      dispatch(setSocket(null));
+    }
+    return;
+  }
 
-       
-       return () => {
-        socketio.off('getOnlineUsers'); 
-        socketio.off('notification'); 
-        socketio.close(); 
-        dispatch(setSocket(null));
-      }
-      }
-    else
-      if(socket)
-       {  
-         return () => {
-          socket.off('getOnlineUsers'); 
-          socket.off('notification'); 
-          socket.close(); 
-         dispatch(setSocket(null));
-          }
-       } 
-   },[user,dispatch]);
-   
+  const socketio = io(socketURL, {
+    query: { userId: user._id },
+    transports: ['websocket']
+  });
+
+  dispatch(setSocket(socketio));
+
+  socketio.on('getOnlineUsers', (onlineUsers) => {
+    dispatch(setOnlineUsers(onlineUsers));
+  });
+
+  socketio.on('notification', (notification) => {
+    dispatch(setLikeNotification(notification));
+  });
+
+  return () => {
+    dispatch(setAuthUser(null));
+    socketio.off('getOnlineUsers');
+    socketio.off('notification');
+    socketio.close();
+    dispatch(setSocket(null));
+  };
+
+}, [user, dispatch]);
    
   return (
     <>

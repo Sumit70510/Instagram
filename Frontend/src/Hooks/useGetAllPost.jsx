@@ -1,5 +1,5 @@
 import { setPosts } from '@/Redux/postSlice.js';
-import axios from 'axios';
+import api from '../Lib/api.js';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -9,8 +9,7 @@ export default function useGetAllPost() {
       const fetchAllPost = async ()=>{
         try
          {
-           const res = await axios.get('/api/v1/post/all',
-                 {withCredentials:true});
+           const res = await api.get('/post/all');
            if(res.data.success)
             {
               // console.log(res.data.posts);  

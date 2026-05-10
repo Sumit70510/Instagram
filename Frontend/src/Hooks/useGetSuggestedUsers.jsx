@@ -1,5 +1,5 @@
 import { setSuggestedUsers } from '@/Redux/authslice.js';
-import axios from 'axios';
+import api from '../Lib/api.js';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -9,8 +9,7 @@ export default function useGetSuggestedUsers() {
       const fetchSuggestedUsers = async ()=>{
         try
          {
-           const res = await axios.get('/api/v1/user/suggested',
-                 {withCredentials:true});
+           const res = await api.get('/user/suggested');
            if(res.data.success)
             {
               // console.log(res.data.users);  
