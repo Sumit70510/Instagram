@@ -1,5 +1,5 @@
+import api from "@/Lib/api.js";
 import { setMessages } from "@/Redux/chatSlice.js";
-import axios from "axios"; 
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

@@ -7,7 +7,7 @@ import { Button } from "./ui/button.jsx";
 import { Badge } from "./ui/badge.jsx";
 import { AtSign, Heart, MessageCircle } from "lucide-react";
 import { setAuthUser, setSelectedUser } from "@/Redux/authslice.js";
-import axios from "axios";
+import api from '@/Lib/api.js';
 import { toast } from "sonner";
 import { setSelectedPost } from "@/Redux/postSlice.js";
 import CommentDialog from "./CommentDialog.jsx";
@@ -48,9 +48,7 @@ export default function Profile() {
      {
        try
         {
-          const res = await axios.post(`/api/v1/user/followorunfollow/${userProfile?._id}`,
-           {withCredentials:true}
-           );
+          const res = await api.post(`/user/followorunfollow/${userProfile?._id}`);
           if (res.data.success) 
            {
              const newFollowing = isFollowing
@@ -79,9 +77,7 @@ export default function Profile() {
     
  const openPostDialog = async (postId) => {
   try {
-    const res = await axios.get(`/api/v1/post/singelPost/${postId}`, {
-      withCredentials: true
-    });
+    const res = await api.get(`/post/singelPost/${postId}`);
 
     if (res.data.success) {
       const fullPost = res.data.post;

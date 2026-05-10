@@ -168,7 +168,7 @@ export default function SearchUser() {
                     to={`/profile/${searchUser._id}`}
                     className="flex items-center gap-3 flex-1 min-w-0"
                   >
-                    <Avatar className="w-12 h-12 flex-shrink-0">
+                    <Avatar className="w-12 h-12 shrink-0">
                       <AvatarImage src={searchUser?.profilePicture} alt={searchUser?.username} />
                       <AvatarFallback>
                         {searchUser?.username?.slice(0, 2)?.toUpperCase()}
@@ -188,7 +188,7 @@ export default function SearchUser() {
                   {!isOwnProfile && (
                     <Button
                       onClick={() => followHandler(searchUser._id)}
-                      className={`ml-2 flex-shrink-0 ${
+                      className={`ml-2 shrink-0 ${
                         isFollowing
                           ? isMobile
                             ? 'bg-zinc-700 text-white hover:bg-zinc-600'

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import { toast } from "sonner";
 import { setSelectedPost, setPosts } from "@/Redux/postSlice";
 import Comment from "./Comment";
@@ -10,6 +9,7 @@ import { ArrowLeft, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { setAuthUser } from "@/Redux/authslice";
+import api from "@/Lib/api.js";
 
 export default function MobileComments() {
   const { postId } = useParams();

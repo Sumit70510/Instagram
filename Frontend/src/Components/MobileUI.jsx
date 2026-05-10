@@ -60,17 +60,15 @@ export default function MobileUI() {
         if(res.data.success)
          {
            toast.success(res.data.message);
+           dispatch(setSelectedPost(null));
+           dispatch(setPosts([]));
+           dispatch(setAuthUser(null));
+           navigate('/login', { replace: true });
          }      
       } 
      catch(error) {
         toast.error(error.response?.data?.message || "Logout failed");
        }
-     finally {
-       dispatch(setSelectedPost(null));
-       dispatch(setPosts([]));
-       dispatch(setAuthUser(null));
-       navigate('/login', { replace: true });
-     }
     }
    
   const navbarHandler = (textType)=>

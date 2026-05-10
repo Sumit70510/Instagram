@@ -81,7 +81,6 @@ useEffect(() => {
   });
 
   return () => {
-    dispatch(setAuthUser(null));
     socketio.off('getOnlineUsers');
     socketio.off('notification');
     socketio.close();

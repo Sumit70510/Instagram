@@ -49,9 +49,9 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.jsx";
-import axios from "axios";
 import { toast } from "sonner";
 import { setAuthUser } from "@/Redux/authslice.js";
+import api from '@/Lib/api.js';
 
 export default function SuggestedUsers() {
   const dispatch = useDispatch();
