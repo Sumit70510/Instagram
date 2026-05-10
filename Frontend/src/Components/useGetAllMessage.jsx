@@ -10,9 +10,7 @@ export default function useGetAllMessage() {
       const fetchAllMessage = async ()=>{
         try
          {
-           const res = await axios.get(`/api/v1/message/all/${selectedUser?._id}`,
-                 {withCredentials:true});
-           if(res.data.success)
+           const res = await api.get(`/message/all/${selectedUser?._id}`);           if(res.data.success)
             {
               // console.log(res.data.posts);  
               dispatch(setMessages(res.data.messages));  

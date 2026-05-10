@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar.jsx'
 import { Button } from './ui/button.jsx'
-import axios from 'axios'
+import api from '@/Lib/api.js'
 import { toast } from 'sonner'
 import { setAuthUser } from '@/Redux/authslice.js'
 import { Search, X } from 'lucide-react'
@@ -34,9 +34,7 @@ export default function SearchUser() {
     setHasSearched(true)
 
     try {
-      const res = await axios.get(`/api/v1/user/search?query=${query}`, {
-        withCredentials: true
-      })
+      const res = await api.get(`/user/search?query=${query}`)
 
       if (res.data.success) {
         setSearchResults(res.data.users || [])
@@ -61,10 +59,8 @@ export default function SearchUser() {
   const followHandler = useCallback(
     async (userId) => {
       try {
-        const res = await axios.post(
-          `/api/v1/user/followorunfollow/${userId}`,
-          {},
-          { withCredentials: true }
+        const res = await api.post(
+          `/user/followorunfollow/${userId}`
         )
 
         if (res.data.success) {

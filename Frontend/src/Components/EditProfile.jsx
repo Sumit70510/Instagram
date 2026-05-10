@@ -5,9 +5,9 @@ import { Button } from './ui/button.jsx';
 import { Textarea } from './ui/textarea.jsx';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select.jsx';
 import { Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { setAuthUser, setUserProfile } from '@/Redux/authslice.js';
 import { readFileAsDataURL } from '@/Lib/utils.js';
 import heic2any from "heic2any";
@@ -89,12 +89,10 @@ const fileChangeHandler = async (e) => {
      try
       {
         console.log(formData);
-        const res = await axios.post('/api/v1/user/profile/edit',
-          formData ,{
+        const res = await api.post('/user/profile/edit', formData, {
             headers : {
               'Content-Type':'multipart/form-data'
-            },
-           withCredentials : true 
+            }
           }
         );
         if(res.data.success)

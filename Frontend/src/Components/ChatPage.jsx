@@ -5,7 +5,7 @@ import { setSelectedUser } from '@/Redux/authslice';
 import { ArrowLeft, MessageCircleCode, Search } from 'lucide-react';
 import Messages from './Messages.jsx';
 import { Button } from './ui/button.jsx';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { setMessages } from '@/Redux/chatSlice.js';
 import { toast } from 'sonner';
 import { Link } from 'react-router';
@@ -25,9 +25,7 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const res = await axios.get('/api/v1/message/conversations/get', {
-          withCredentials: true
-        });
+        const res = await api.get('/message/conversations/get');
         if (res.data.success) {
           setConversations(res.data.conversations || []);
         }
@@ -54,11 +52,10 @@ export default function ChatPage() {
       return;
     }
     try {
-      const res = await axios.post(`/api/v1/message/send/${recieverId}`,
+      const res = await api.post(`/message/send/${recieverId}`,
         { message: textMessage },
         {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
+          headers: { 'Content-Type': 'application/json' }
         }
       );
       if (res.data.success) {

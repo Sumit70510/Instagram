@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar.jsx';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { toast } from 'sonner';
 import CreatePost from './CreatePost.jsx';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
@@ -56,21 +56,21 @@ export default function MobileUI() {
    {
      try
       {
-        const res = await axios.get('/api/v1/user/logout',
-            { withCredentials : true }
-           );
+        const res = await api.post('/user/logout');
         if(res.data.success)
          {
-           dispatch(setSelectedPost(null));
-           dispatch(setPosts([]));
-           dispatch(setAuthUser(null));
-           navigate('/login');
-           toast.success(res.data.message); 
+           toast.success(res.data.message);
          }      
       } 
      catch(error) {
         toast.error(error.response?.data?.message || "Logout failed");
        }
+     finally {
+       dispatch(setSelectedPost(null));
+       dispatch(setPosts([]));
+       dispatch(setAuthUser(null));
+       navigate('/login', { replace: true });
+     }
     }
    
   const navbarHandler = (textType)=>

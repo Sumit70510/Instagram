@@ -8,10 +8,10 @@ import CommentDialog from './CommentDialog.jsx';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
 import { Badge } from './ui/badge.jsx';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { setAuthUser } from '@/Redux/authslice.js';
 
 export default function Post({post}) 
@@ -55,11 +55,11 @@ export default function Post({post})
      {
         try
          {
-           const res = await axios.post(`/api/v1/post/${post?._id}/comment`,{text},
+           const res = await api.post(`/post/${post?._id}/comment`,{text},
              {
               headers:{
                  "Content-Type": "application/json" 
-               }, withCredentials : true
+               }
              }
             );
            if(res.data.success)
@@ -85,8 +85,7 @@ export default function Post({post})
        try
         {
           const action = liked?'dislike':'like';
-          const res = await axios.get(`/api/v1/post/${post._id}/${action}`,
-                {withCredentials : true});
+          const res = await api.get(`/post/${post._id}/${action}`);
           if(res.data.success)
            {
              const updateLikes = liked ? postLike-1 : postLike+1 ;
@@ -109,8 +108,7 @@ export default function Post({post})
      {
         try
          {
-           const res = await axios.delete(`/api/v1/post/delete/${post._id}`,
-                             {withCredentials : true});
+           const res = await api.delete(`/post/delete/${post._id}`);
            if(res.data.success)
             {
               const updatePostData = posts.filter((postItem)=>
@@ -130,9 +128,7 @@ export default function Post({post})
     {
       try
        {
-         const res = await axios.get(`/api/v1/post/${post?._id}/bookmark`,
-          {withCredentials:true}
-          );
+         const res = await api.get(`/post/${post?._id}/bookmark`);
          if(res.data.success)
           {
             const updatedBookmarks = isBookmarked
@@ -153,9 +149,7 @@ export default function Post({post})
      {
        try
         {
-          const res = await axios.post(`/api/v1/user/followorunfollow/${post?.author?._id}`,
-           {withCredentials:true}
-           );
+          const res = await api.post(`/user/followorunfollow/${post?.author?._id}`);
           if (res.data.success) {
             
           const newFollowing = isFollowing

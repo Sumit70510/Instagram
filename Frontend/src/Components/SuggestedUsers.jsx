@@ -64,10 +64,8 @@ export default function SuggestedUsers() {
   const followHandler = useCallback(
     async (id) => {
       try {
-        const res = await axios.post(
-          `/api/v1/user/followorunfollow/${id}`,
-          {},
-          { withCredentials: true }
+        const res = await api.post(
+          `/user/followorunfollow/${id}`
         );
 
         if (res.data.success) {

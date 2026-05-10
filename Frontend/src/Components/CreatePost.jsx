@@ -5,7 +5,7 @@ import { Textarea } from './ui/textarea.jsx'
 import { Button } from './ui/button.jsx';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { readFileAsDataURL } from '@/Lib/utils.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPosts } from '@/Redux/postSlice.js';
@@ -69,11 +69,7 @@ export default function CreatePost({open,setOpen}) {
           } 
          try{
            setLoading(true);
-           const res = await axios.post('/api/v1/post/addpost',formData,
-             {
-              withCredentials:true
-             }
-            );
+           const res = await api.post('/post/addpost', formData);
            if(res.data.success)
             {
               dispatch(setPosts([res.data.post,...posts]));

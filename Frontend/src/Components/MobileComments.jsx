@@ -31,8 +31,7 @@ export default function MobileComments() {
      {
         try
          {
-           const res = await axios.delete(`/api/v1/post/delete/${post._id}`,
-                             {withCredentials : true});
+           const res = await api.delete(`/post/delete/${post._id}`);
            if(res.data.success)
             {
               const updatePostData = posts.filter((postItem)=>
@@ -52,9 +51,7 @@ export default function MobileComments() {
        {
          try
           {
-            const res = await axios.get(`/api/v1/post/${post?._id}/bookmark`,
-             {withCredentials:true}
-             );
+            const res = await api.get(`/post/${post?._id}/bookmark`);
             if(res.data.success)
              {
                const updatedBookmarks = isBookmarked
@@ -75,9 +72,7 @@ export default function MobileComments() {
         {
           try
            {
-             const res = await axios.post(`/api/v1/user/followorunfollow/${post?.author?._id}`,
-              {withCredentials:true}
-              );
+             const res = await api.post(`/user/followorunfollow/${post?.author?._id}`);
              if (res.data.success) {
                
              const newFollowing = isFollowing
@@ -107,9 +102,7 @@ export default function MobileComments() {
     } else {
       const fetchPost = async () => {
         try {
-          const res = await axios.get(`/api/v1/post/${postId}`, {
-            withCredentials: true,
-          });
+          const res = await api.get(`/post/${postId}`);
           if (res.data.success) {
             setPost(res.data.post);
             setComments(res.data.post.comments || []);
@@ -126,12 +119,11 @@ export default function MobileComments() {
   const sendMessageHandler = async () => {
     if (!text.trim() || !selectedPost) return;
     try {
-      const res = await axios.post(
-        `/api/v1/post/${selectedPost._id}/comment`,
+      const res = await api.post(
+        `/post/${selectedPost._id}/comment`,
         { text },
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
+          headers: { "Content-Type": "application/json" }
         }
       );
 

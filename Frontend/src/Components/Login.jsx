@@ -12,9 +12,10 @@ import { setAuthUser } from '../Redux/authslice.js';
 export default function Login() {
     
    const [input,setInput] = useState({
-    email : "" , password : "" }); 
+    identifier : "" , password : "" ,force : false}); 
    
    const [loading,setloading]=useState(false);  
+   const [confirm,setConfirm]=useState(false);
    
    const navigate = useNavigate();
    const dispatch = useDispatch();
@@ -31,18 +32,33 @@ export default function Login() {
   try 
    {
     setloading(true);
+    const requestBody = {
+      password: input.password,
+      force: confirm || input.force,
+      ...(input.identifier.includes('@')
+        ? { email: input.identifier }
+        : { username: input.identifier })
+    };
     const res = await api.post(
       '/user/login',
-      input,
+      requestBody,
       { headers: { "Content-Type": "application/json" } }
       ); 
-      if (res.data.success) {
+      if(res.data.requireConfirmation)
+         {
+           toast.error(res.data.message);
+           setConfirm(true);
+           return;
+         }  
+      if(res.data.success) {
        navigate('/');
        dispatch(setAuthUser(res.data.user));
        toast.success(res.data.message);
-       setInput({ email: "", password: "" });
-      }
-    } catch(e){
+       setInput({ identifier: "", password: "" ,force :false});
+       setConfirm(false);
+       }
+    } 
+    catch(e){
     // console.error(e);
     toast.error(e.response?.data?.message || "Something Went Wrong");
    }finally {
@@ -79,24 +95,24 @@ export default function Login() {
            </div>  
            <div>
             <span  className='font-medium my-2'>
-             Email
+             Email or Username
             </span>
             <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
-             type='email' name='email' value={input.email} onChange={changeEventHandler}/> 
+             type='text' name='identifier' placeholder='Email or username' value={input.identifier} onChange={changeEventHandler}/> 
            </div>  
            <div>
             <span  className='font-medium my-2'>
              Password
             </span>
             <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
-             type='password' name='password'value={input.password} onChange={changeEventHandler}/> 
+             type='password' name='password' placeholder="********" value={input.password} onChange={changeEventHandler}/> 
            </div>
             {
              loading?(<Button>
                        <Loader2 className='mr-2 h-4 w-4 animate-spin'/> 
                          Please Wait...                
                       </Button>)
-              : (<Button type='submit'>Login</Button>)
+              : confirm ? (<Button type='submit'>Continue</Button>) : (<Button type='submit'>Login</Button>)
              }  
             <span className="text-center">
             Doesn't Have an Account ?

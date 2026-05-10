@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { setSocket } from './Redux/socketSlice.js';
 import { setOnlineUsers } from './Redux/chatSlice.js';
 import { setLikeNotification } from './Redux/rtnSlice.js';
+import { setAuthUser } from './Redux/authslice.js';
 import ProtectedRoutes from './Components/ProtectedRoutes.jsx';
 import MobileComments from './Components/MobileComments.jsx';
 import SearchUser from './Components/SearchUser.jsx';

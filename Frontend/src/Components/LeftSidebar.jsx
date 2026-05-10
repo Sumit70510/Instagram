@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import {Heart, Home, Info, LogOut, MessageCircle, PlusIcon, Search, TrendingUp} from 'lucide-react';
 import { AvatarFallback ,Avatar,AvatarImage} from './ui/avatar.jsx';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser } from '@/Redux/authslice.js';
 import CreatePost from './CreatePost.jsx';
@@ -55,21 +55,21 @@ export default function LeftSidebar() {
    {
      try
       {
-        const res = await axios.get('/api/v1/user/logout',
-            { withCredentials : true }
-           );
+        const res = await api.post('/user/logout');
         if(res.data.success)
          {
-           dispatch(setSelectedPost(null));
-           dispatch(setPosts([]));
-           dispatch(setAuthUser(null));
-           navigate('/login');
-           toast.success(res.data.message); 
-         }      
+           toast.success(res.data.message);
+         }
       } 
      catch(error) {
         toast.error(error.response?.data?.message || "Logout failed");
        }
+     finally {
+       dispatch(setSelectedPost(null));
+       dispatch(setPosts([]));
+       dispatch(setAuthUser(null));
+       navigate('/login', { replace: true });
+     }
    }
    
   const sidebarHandler = (textType)=>

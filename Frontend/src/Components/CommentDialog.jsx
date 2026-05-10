@@ -7,7 +7,7 @@ import { Button } from './ui/button.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import store from '@/Redux/store';
 import Comment from './Comment.jsx';
-import axios from 'axios';
+import api from '@/Lib/api.js';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
 import { toast } from 'sonner';
 import { setAuthUser } from '@/Redux/authslice.js';
@@ -54,8 +54,7 @@ export default function CommentDialog({open,setOpen,post}) {
      {
         try
          {
-           const res = await axios.delete(`/api/v1/post/delete/${selectedPost?._id}`,
-                             {withCredentials : true});
+           const res = await api.delete(`/post/delete/${selectedPost?._id}`);
            if(res.data.success)
             {
               const updatePostData = posts.filter((postItem)=>
@@ -75,11 +74,11 @@ export default function CommentDialog({open,setOpen,post}) {
      {
         try
          {
-           const res = await axios.post(`/api/v1/post/${selectedPost?._id}/comment`,{text},
+           const res = await api.post(`/post/${selectedPost?._id}/comment`,{text},
              {
               headers:{
                  "Content-Type": "application/json" 
-               }, withCredentials : true
+               }
              }
             );
            if(res.data.success)
@@ -109,9 +108,7 @@ export default function CommentDialog({open,setOpen,post}) {
      {
        try
         {
-          const res = await axios.post(`/api/v1/user/followorunfollow/${selectedPost?.author?._id}`,
-           {withCredentials:true}
-           );
+          const res = await api.post(`/user/followorunfollow/${selectedPost?.author?._id}`);
           if (res.data.success) {
             
           const newFollowing = isFollowing
@@ -134,9 +131,7 @@ export default function CommentDialog({open,setOpen,post}) {
     {
       try
        {
-         const res = await axios.get(`/api/v1/post/${selectedPost?._id}/bookmark`,
-          {withCredentials:true}
-          );
+         const res = await api.get(`/post/${selectedPost?._id}/bookmark`);
          if(res.data.success)
           {
             const updatedBookmarks = isBookmarked
