@@ -100,8 +100,8 @@ export const login = async(req,res)=>
                 "deviceInfo.userAgent": req.headers["user-agent"]},{isActive:false});
                 
          const activeSessions = await Session.find({userId : user._id ,isActive :true});
-         console.log(activeSessions.length," ",sessionLimit);
-         console.log(existingSession?'E':'NE')
+        //  console.log(activeSessions.length," ",sessionLimit);
+        //  console.log(existingSession?'E':'NE')
          if((activeSessions.length+1) > sessionLimit && !force)
            {
             //  if(!existingSession)
@@ -131,8 +131,8 @@ export const login = async(req,res)=>
         //     }    
        
          if((activeSessions.length+1)>sessionLimit&&force){
-          console.log(' F');
-           message="!"
+          // console.log(' F');
+          //  message="!"
            const extraSessions = activeSessions
             .sort((a, b) => a.createdAt - b.createdAt) // oldest first
             .slice(0, activeSessions.length - sessionLimit + 1);

@@ -38,7 +38,7 @@ export default function Login() {
       ...(input.identifier.includes('@')
         ? { email: input.identifier }
         : { username: input.identifier })
-    };
+    }
     const res = await api.post(
       '/user/login',
       requestBody,
@@ -84,41 +84,44 @@ export default function Login() {
   
    return(
      <div className={`flex items-center w-screen h-screen justify-center ${'bg-linear-to-r from-[#141E30] to-[#243B55]'}`}>
-        <form className={`shadow-lg flex flex-col gap-5 p-4 ${
-        'bg-white text-black border  rounded-lg mx-1'}`} 
-        onSubmit={loginHandler}>
+        <form className={`shadow-lg flex flex-col gap-5 p-4 ${'bg-white text-black border  rounded-lg mx-1'}`} 
+                          onSubmit={loginHandler} >
+           
            <div className='my-4 flex flex-col items-center'>
              <img src='/Black.png' className='w-30 h-12'/>
              <p className='text-sm text-center'>
                Login To See Photos & Videos From Your Friends 
              </p>
            </div>  
-           <div>
-            <span  className='font-medium my-2'>
-             Email or Username
-            </span>
-            <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
-             type='text' name='identifier' placeholder='Email or username' value={input.identifier} onChange={changeEventHandler}/> 
-           </div>  
-           <div>
-            <span  className='font-medium my-2'>
-             Password
-            </span>
-            <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
-             type='password' name='password' placeholder="********" value={input.password} onChange={changeEventHandler}/> 
-           </div>
-            {
-             loading?(<Button>
+           
+            <div>
+              <span  className='font-medium my-2'>
+                Email or Username
+              </span>
+              <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
+                                type='text' name='identifier' placeholder='Email or username' value={input.identifier} onChange={changeEventHandler}/> 
+            </div>
+              
+            <div>
+              <span  className='font-medium my-2'>
+                Password
+              </span>
+              <Input className='focus-visible:ring-transparent my-2  border border-zinc-300 '
+                               type='password' name='password' placeholder="********" value={input.password} onChange={changeEventHandler}/> 
+            </div>
+            
+             {
+               loading?(<Button>
                        <Loader2 className='mr-2 h-4 w-4 animate-spin'/> 
                          Please Wait...                
                       </Button>)
               : confirm ? (<Button type='submit'>Continue</Button>) : (<Button type='submit'>Login</Button>)
              }  
             <span className="text-center">
-            Doesn't Have an Account ?
-            <Link to='/signup' className='text-blue-600'> SignUp</Link>
+               Doesn't Have an Account ?
+               <Link to='/signup' className='text-blue-600'> SignUp</Link>
             </span> 
-        </form>
+         </form>
      </div>
     )
 }
