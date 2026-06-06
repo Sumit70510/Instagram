@@ -6,6 +6,7 @@ import connectDB from './utils/db.js';
 import userRoutes from './routes/user.routes.js';
 import postRoutes from './routes/post.routes.js';
 import messageRoutes from './routes/message.routes.js';
+import storyRoutes from './routes/story.routes.js';
 import { app,server,io } from './socket/socket.js';
 import path from 'path';
 
@@ -29,6 +30,7 @@ const PORT=process.env.PORT||3000;
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/post',postRoutes);
 app.use('/api/v1/message',messageRoutes);
+app.use('/api/v1/story',storyRoutes);
 
 
 if(process.env.NODE_ENV==='PRODUCTION')
