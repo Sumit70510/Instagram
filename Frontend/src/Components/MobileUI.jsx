@@ -1,4 +1,4 @@
-import { Heart, Home, Info, LogOut, MessageCircle, PlusIcon, Search, TrendingUp } from 'lucide-react';
+import { Heart, Home, Info, LogOut, Moon, MessageCircle, PlusIcon, Search, Sun, TrendingUp } from 'lucide-react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -9,12 +9,14 @@ import CreatePost from './CreatePost.jsx';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
 import { setAuthUser } from '@/Redux/authslice.js';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.jsx';
+import useTheme from '@/Redux/theme.js';
 import { Button } from './ui/button.jsx';
 
 export default function MobileUI() {  
     
    const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { themeMode, toggleTheme } = useTheme();
   
   const auth = useSelector(state => state.auth) || {};
   const user = auth.user;
@@ -98,13 +100,12 @@ export default function MobileUI() {
    
     
   return (
-    <div className="flex flex-col h-screen">
-  <header className="h-12 flex items-center justify-between px-4 border-b border-zinc-700 bg-zinc-900 bg-opacity-70 fixed top-0 left-0 right-0 z-10">
-  {/* <h1 className="text-lg font-bold text-white">LOGO</h1> */}
+    <div className="flex flex-col h-screen bg-white text-slate-950 dark:bg-black dark:text-slate-100">
+  <header className="h-12 flex items-center justify-between px-4 border-b border-slate-200 bg-white/90 text-slate-950 dark:border-zinc-800 dark:bg-black/95 dark:text-slate-100 fixed top-0 left-0 right-0 z-10 backdrop-blur-sm">
   <div className='flex gap-1 items-center'>
-   <img src='/white.png' className='w-30 h-12'/>
-     <a href='https://github.com/Sumit70510' rel='noreferrer' title='About The Developer' target='_blank'>
-        <Info/>
+   <img src={themeMode === 'dark' ? '/white.png' : '/Black.png'} className='w-30 h-12'/>
+     <a href='https://github.com/Sumit70510' rel='noreferrer' title='About The Developer' target='_blank' className='text-slate-950 dark:text-slate-100'>
+        <Info />
       </a> 
   </div>
   <div className="flex items-center gap-3 relative">
@@ -114,7 +115,7 @@ export default function MobileUI() {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-center hover:bg-zinc-700 cursor-pointer rounded-lg p-2 relative"
+                className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 relative text-slate-950 dark:text-slate-100"
                 aria-label={item.text}
               >
                 <span className="text-xl">{item.icon}</span>
@@ -126,20 +127,20 @@ export default function MobileUI() {
               </button>
             </PopoverTrigger>
 
-            <PopoverContent className="bg-zinc-800 text-white border border-zinc-600 w-64">
+            <PopoverContent className="bg-white text-slate-950 border border-slate-300 dark:bg-black/95 dark:text-slate-100 dark:border-zinc-800 w-64">
               <div>
                 {likeNotification.length === 0 ? (
-                  <p>No New Notification</p>
+                  <p className="text-slate-700 dark:text-slate-300">No New Notification</p>
                 ) : (
                   likeNotification.map((notification) => (
                     <div key={notification?.userId} className="flex items-center gap-2 my-2">
-                      <Avatar className="w-6 h-6 text-black">
+                      <Avatar className="w-6 h-6">
                         <AvatarImage src={notification?.userDetails?.profilePicture} />
                         <AvatarFallback>
                           {notification?.userDetails?.username?.slice(0, 2).toUpperCase() || "CN"}
                         </AvatarFallback>
                       </Avatar>
-                      <p className="text-sm">
+                      <p className="text-sm text-slate-700 dark:text-slate-300">
                         <span className="font-bold">{notification?.userDetails?.username}</span>
                         &nbsp;liked your post
                       </p>
@@ -153,7 +154,7 @@ export default function MobileUI() {
       ) : (
         <button
           key={index}
-          className="flex items-center justify-center hover:bg-zinc-700 cursor-pointer rounded-lg p-2"
+          className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 text-slate-950 dark:text-slate-100"
           onClick={() => navbarHandler(item.text)}
           aria-label={item.text}
         >
@@ -161,6 +162,14 @@ export default function MobileUI() {
         </button>
       )
     ))}
+    <button
+      type="button"
+      className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 text-slate-950 dark:text-slate-100"
+      onClick={toggleTheme}
+      aria-label="Toggle theme"
+    >
+      <span className="text-xl">{themeMode === 'dark' ? <Sun /> : <Moon />}</span>
+    </button>
   </div>
 </header>
 
@@ -169,11 +178,11 @@ export default function MobileUI() {
       <Outlet />
     </div>
 
-    <footer className="h-12 flex items-center justify-around border-t border-zinc-700 bg-zinc-900 bg-opacity-70 fixed bottom-0 left-0 right-0 z-10">
+    <footer className="h-12 flex items-center justify-around border-t border-slate-200 bg-white/90 text-slate-950 dark:border-zinc-800 dark:bg-black/95 dark:text-slate-100 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-sm">
        {footerItems.map((item, index) => (
         <button
           key={index}
-          className="flex items-center gap-3 relative hover:bg-zinc-700 cursor-pointer rounded-lg p-3 my-3" 
+          className="flex items-center gap-3 relative hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-3 my-3 text-slate-950 dark:text-slate-100" 
           onClick={()=>navbarHandler(item.text)} aria-label={item.text}>
             <span className="text-xl">{item.icon}</span>   
         </button>))

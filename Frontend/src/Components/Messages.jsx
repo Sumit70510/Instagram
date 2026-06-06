@@ -5,6 +5,7 @@ import { Button } from './ui/button.jsx'
 import { useSelector } from 'react-redux'
 import useGetAllMessage from '@/Hooks/useGetAllMessage.jsx'
 import useGetRTM from '@/Hooks/useGetRTM.jsx'
+import useTheme from '@/Redux/theme.js'
 
 export default function Messages({ selectedUser }) {
   useGetAllMessage();
@@ -12,6 +13,7 @@ export default function Messages({ selectedUser }) {
   const { user } = useSelector(store => store.auth);
   const { messages } = useSelector(store => store.chat);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 690);
+  const { themeMode } = useTheme();
   
   const messagesEndRef = useRef(null);
   
@@ -27,18 +29,18 @@ export default function Messages({ selectedUser }) {
   }, [messages,]);
 
   return (
-    <div className="overflow-y-auto hide-scrollbar flex-1 p-4 mt-14 mb-14">
+    <div className={`overflow-y-auto hide-scrollbar flex-1 p-4 mt-14 mb-14 ${themeMode === 'dark' ? 'bg-black text-slate-100' : 'bg-white text-slate-950'}`}>
       <div className="flex justify-center mb-4">
         <div className="flex flex-col items-center justify-center">
-          <Avatar className="w-20 h-20 text-black">
+          <Avatar className={`w-20 h-20 ${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
             <AvatarImage src={selectedUser?.profilePicture} alt="Profile_image" />
             <AvatarFallback>
               {selectedUser?.username?.slice(0, 2)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span>{selectedUser?.username}</span>
+          <span className={`${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>{selectedUser?.username}</span>
           <Link to={`/profile/${selectedUser?._id}`}>
-            <Button className={`h-8 my-2 cursor-pointer ${isMobile?"bg-purple-500 hover:bg-green-900":'bg-white text-black hover:bg-gray-200'} variant="secondary"`}>
+            <Button className={`h-8 my-2 cursor-pointer ${themeMode === 'dark' ? 'bg-zinc-900 text-slate-100 hover:bg-zinc-800' : 'bg-white text-slate-950 hover:bg-gray-200'}`} variant="secondary">
               View Profile
             </Button>
           </Link>
@@ -53,7 +55,9 @@ export default function Messages({ selectedUser }) {
                 className={`p-2 rounded-lg max-w-xs break-word ${
                   msg?.senderId === user?._id
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-black'
+                    : themeMode === 'dark'
+                    ? 'bg-zinc-800 text-slate-100'
+                    : 'bg-gray-200 text-slate-950'
                 }`}
               >
                 {msg?.message}

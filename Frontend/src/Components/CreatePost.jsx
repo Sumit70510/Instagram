@@ -5,6 +5,7 @@ import { Textarea } from './ui/textarea.jsx'
 import { Button } from './ui/button.jsx';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import useTheme from '@/Redux/theme.js';
 import api from '@/Lib/api.js';
 import { readFileAsDataURL } from '@/Lib/utils.js';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +21,7 @@ export default function CreatePost({open,setOpen}) {
    const {user} = useSelector(store=>store.auth);
    const {posts} = useSelector(store=>store.post);
    const dispatch = useDispatch();
+   const { themeMode } = useTheme();
    
   const fileChangeHandler = async (e) => {
   
@@ -92,21 +94,34 @@ export default function CreatePost({open,setOpen}) {
       }
       
    return (
-    <Dialog open={open} className='bg-gray-300'>
-      <DialogContent onInteractOutside={()=>setOpen(false)}>
-        <DialogHeader className='text-center font-semibold text-black'>Create New Post</DialogHeader> 
+    <Dialog open={open} className={themeMode === 'dark' ? 'bg-black' : 'bg-gray-300'}>
+      <DialogContent
+        onInteractOutside={()=>setOpen(false)}
+        className={themeMode === 'dark' ? 'bg-black text-slate-100 border border-zinc-800' : 'bg-white text-slate-950'}
+      >
+        <DialogHeader className={`text-center font-semibold ${themeMode === 'dark' ? 'text-slate-100' : 'text-black'}`}>
+          Create New Post
+        </DialogHeader> 
         <div className='flex gap-3 items-center'>
-          <Avatar className='text-black'>
+          <Avatar className={themeMode === 'dark' ? 'text-slate-100' : 'text-black'}>
             <AvatarImage src={user?.profilePicture} alt='img'/>
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className='font-semibold text-xs text-black'>{user?.username}</h1>
-            <span className='font-semibold text-xs text-gray-600'>{user?.bio}</span>
+            <h1 className={`font-semibold text-xs ${themeMode === 'dark' ? 'text-slate-100' : 'text-black'}`}>
+              {user?.username}
+            </h1>
+            <span className={`font-semibold text-xs ${themeMode === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
+              {user?.bio}
+            </span>
           </div>
         </div>  
-        <Textarea value={caption} onChange={(e)=>setCaption(e.target.value)}
-         className='focus-visible:ring-transparent text-black' placeholder='Write a Caption........'/>
+        <Textarea
+          value={caption}
+          onChange={(e)=>setCaption(e.target.value)}
+          className={`focus-visible:ring-transparent ${themeMode === 'dark' ? 'text-slate-100 bg-zinc-900 border border-zinc-700' : 'text-black'}`}
+          placeholder='Write a Caption........'
+        />
          {
           imagePreview&&(
             <div className='w-full h-64 flex items-center justify-center'>

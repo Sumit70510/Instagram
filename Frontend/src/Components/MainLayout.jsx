@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import LeftSidebar from './LeftSidebar.jsx';
 import MobileUI from './MobileUI.jsx';
+import useTheme from '@/Redux/theme.js';
 export default function MainLayout() {
 
+  const { themeMode } = useTheme();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 690);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function MainLayout() {
           
       ) : ( 
         <>
-        <div className="overflow-y-auto hide-scrollbar fixed top-0 left-0 w-auto h-screen border-r ">
+        <div className={`overflow-y-auto hide-scrollbar fixed top-0 left-0 w-auto h-screen border-r ${themeMode === 'dark' ? 'border-zinc-900 bg-zinc-950' : 'border-gray-300 bg-white'}`}>
           {/* min-w-[200px] max-w-[250px] */}
           <LeftSidebar />
         </div>

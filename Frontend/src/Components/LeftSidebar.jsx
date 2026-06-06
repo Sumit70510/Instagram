@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import {Heart, Home, Info, LogOut, MessageCircle, PlusIcon, Search, TrendingUp} from 'lucide-react';
-import { AvatarFallback ,Avatar,AvatarImage} from './ui/avatar.jsx';
+import { Heart, Home, Info, LogOut, Moon, MessageCircle, PlusIcon, Search, Sun, TrendingUp } from 'lucide-react';
+import { AvatarFallback, Avatar, AvatarImage } from './ui/avatar.jsx';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '@/Lib/api.js';
 import { useDispatch, useSelector } from 'react-redux';
+import useTheme from '@/Redux/theme.js';
 import { setAuthUser } from '@/Redux/authslice.js';
 import CreatePost from './CreatePost.jsx';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
@@ -15,6 +16,7 @@ export default function LeftSidebar() {
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { themeMode, toggleTheme } = useTheme();
   
   const auth = useSelector(state => state.auth) || {};
   const user = auth.user;
@@ -26,14 +28,18 @@ export default function LeftSidebar() {
        text : "Home" },
       {icon : <Search/>,
        text : "Search" },
-      {icon : <TrendingUp/>,
-       text : "Explore" },
+      // {icon : <TrendingUp/>,
+      //  text : "Explore" },
       {icon : <MessageCircle/>,
        text : "Messages" },
       {icon : <Heart/>,
        text : "Notifications" },
       {icon : <PlusIcon/>,
        text : "Create" },
+      {
+       icon: themeMode === 'dark' ? <Sun /> : <Moon />,
+       text: 'Theme',
+      },
       {icon : (
               <Avatar className='w-6 h-6'>
                 <AvatarImage src={user?.profilePicture}/>
@@ -82,6 +88,8 @@ export default function LeftSidebar() {
            navigate('/');   break;
          case 'Profile':
            navigate(`/profile/${user._id}`); break;
+         case 'Theme':
+           toggleTheme(); break;
          case 'Messages':
            navigate('/chat'); break;
          case 'Search' :
@@ -112,23 +120,31 @@ export default function LeftSidebar() {
   }, []); 
     
   return (
-     <div className='fixed top-0 z-10 left-0 px-2 border-r border-gray-300 w-auto h-screen'>
+     <div className={`fixed top-0 z-10 left-0 px-2 w-auto h-screen border-r ${themeMode === 'dark' ? 'border-zinc-900 bg-zinc-950 text-slate-100 shadow-inner shadow-black/30' : 'border-gray-300 bg-white text-slate-950'}`}>
       <div className='flex flex-col px-4 h-full'>
      {/* <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen'> */}
         {/* <div className='flex flex-col'> */}
         {/* <h1 className='my-8 justify-center font-bold text-xl'>LOGO</h1>   */}
       
-        {isSidebarExpanded?<img src='/Black.png' className='justify-center mt-8 mb-6 w-25 h-12'/>:
-        <img src='/LOGO.png' className='justify-center mx-2 my-9 w-8 h-8'/>}
+        {isSidebarExpanded ? (
+          <img
+            src={themeMode === 'dark' ? '/white.png' : '/Black.png'}
+            className='justify-center mt-8 mb-6 w-25 h-12'
+          />
+        ) : (
+          <img
+            src={themeMode === 'dark' ? '/white.png' : '/Black.png'}
+            className='justify-center mx-2 my-9 w-8 h-8'
+          />
+        )}
       
         <div>
           {
             sidebarItems.map((item,index)=>{
                return(
-                <div key={index} className="flex items-center gap-3 relative hover:bg-gray-200 cursor-pointer
-                    rounded-lg p-3 my-3" onClick={()=>sidebarHandler(item.text)}>
-                 <div className="w-6 h-6">{item.icon}</div>
-                  {isSidebarExpanded && <span>{item.text}</span>}
+                <div key={index} className={`flex items-center gap-3 relative rounded-lg p-3 my-3 cursor-pointer transition ${themeMode === 'dark' ? 'bg-transparent hover:bg-zinc-800' : 'hover:bg-gray-200'}`} onClick={()=>sidebarHandler(item.text)}>
+                 <div className={`${themeMode === 'dark' ? 'w-6 h-6 text-slate-100' : 'w-6 h-6 text-slate-950'}`}>{item.icon}</div>
+                  {isSidebarExpanded && <span className={`${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>{item.text}</span>}
                   
                   {
                     item.text==='Notifications'&&likeNotification.length!==0&&

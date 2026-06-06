@@ -10,6 +10,7 @@ import { setAuthUser, setSelectedUser } from "@/Redux/authslice.js";
 import api from '@/Lib/api.js';
 import { toast } from "sonner";
 import { setSelectedPost } from "@/Redux/postSlice.js";
+import useTheme from "@/Redux/theme.js";
 import CommentDialog from "./CommentDialog.jsx";
 
 export default function Profile() {
@@ -21,6 +22,7 @@ export default function Profile() {
   const dispatch = useDispatch();
   const { posts, selectedPost } = useSelector((store) => store.post);
   const { userProfile , user , selectedUser  } = useSelector((store) => store.auth);
+  const { themeMode } = useTheme();
   const [activeTab,setActiveTab] = useState('POSTS');
   const isLoggedInUserProfile = user?._id===userProfile?._id;
   const [isFollowing,setIsFollowing] = useState(false);
@@ -95,9 +97,9 @@ export default function Profile() {
   const displayedPost = activeTab==='POSTS'? userProfile?.posts : userProfile?.bookmarks;  
   
   return (
-  <div className={`flex h-full justify-center scroll-smooth overflow-y-hidden ${isMobile?"":"mt-6 p-4 ml-[16%]"}`}>
+  <div className={`flex h-full justify-center scroll-smooth overflow-y-hidden ${isMobile?"":"mt-6 p-4 ml-[16%]"} ${themeMode === 'dark' ? 'bg-black text-slate-100' : 'bg-white text-slate-950'}`}>
     {/* <div className="flex flex-col gap-12 p-8"> */}
-    <div className="flex flex-col gap-6 p-2 h-full w-full max-w-full box-border scroll-smooth">
+    <div className={`flex flex-col gap-6 p-2 h-full w-full max-w-full box-border scroll-smooth ${themeMode === 'dark' ? 'bg-black text-slate-100' : 'bg-white text-slate-950'}`}>
 
     {/* <div className="flex justify-between"> */}
     <div className="flex flex-col gap-5 sm:grid sm:grid-cols-[1fr_2fr] sm:gap-4 w-full items-center sm:items-start">
@@ -116,11 +118,11 @@ export default function Profile() {
           {isLoggedInUserProfile ? (
             <>
               <Link to='/account/edit'>
-                <Button className="flex hover:bg-gray-200 h-8" variant="secondary">
+                <Button className={`flex h-8 ${themeMode === 'dark' ? 'bg-zinc-900 text-slate-100 hover:bg-zinc-800' : 'bg-gray-200 text-slate-950 hover:bg-gray-300'}`} variant="secondary">
                   Edit Profile
                 </Button>
               </Link>
-              <Button className="hover:bg-gray-200 h-8" variant="secondary">
+              <Button className={`h-8 ${themeMode === 'dark' ? 'bg-zinc-900 text-slate-100 hover:bg-zinc-800' : 'bg-gray-200 text-slate-950 hover:bg-gray-300'}`} variant="secondary">
                 View Archive
               </Button>
               {/* <Button className="hover:bg-gray-200 h-8" variant="secondary">
@@ -130,17 +132,17 @@ export default function Profile() {
           ) : 
            isFollowing ? (
             <>
-            <Button className="h-8 bg-gray-300 hover:bg-gray-400" variant="secondary"
+            <Button className={`h-8 ${themeMode === 'dark' ? 'bg-zinc-900 text-slate-100 hover:bg-zinc-800' : 'bg-gray-300 text-slate-950 hover:bg-gray-400'}`} variant="secondary"
               onClick={handleFollowUnFollow} >
               Unfollow
             </Button>
-            <Button className="h-8 bg-gray-300 hover:bg-gray-400" variant="secondary"
+            <Button className={`h-8 ${themeMode === 'dark' ? 'bg-zinc-900 text-slate-100 hover:bg-zinc-800' : 'bg-gray-300 text-slate-950 hover:bg-gray-400'}`} variant="secondary"
               onClick={sendMessage} >
               Message
             </Button>
             </>
           ) : (
-            <Button className="h-8 bg-[#0095f6] hover:bg-[#0d6fb1]" 
+            <Button className="h-8 bg-[#0095f6] text-white hover:bg-[#0d6fb1]" 
               onClick={handleFollowUnFollow} >
               Follow
             </Button>
@@ -181,8 +183,8 @@ export default function Profile() {
      </section>
     </div>
    
-    <div className="border-t border-gray-500 scroll-smooth">
-    <div className="flex items-center justify-center gap-10 text-sm">
+    <div className={`border-t ${themeMode === 'dark' ? 'border-zinc-800' : 'border-gray-500'} scroll-smooth`}>
+    <div className={`flex items-center justify-center gap-10 text-sm ${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
       <span className={`py-3 cursor-pointer ${activeTab==='POSTS'?'font-bold':''}`} onClick={()=>handleTabChange('POSTS')}>
         POSTS
       </span>
