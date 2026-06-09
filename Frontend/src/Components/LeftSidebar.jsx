@@ -11,6 +11,8 @@ import CreatePost from './CreatePost.jsx';
 import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
 import { Button } from './ui/button.jsx';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.jsx';
+import { useContext } from "react";
+import { ScrollContext } from "../App.jsx";
 
 export default function LeftSidebar() {
   
@@ -22,9 +24,11 @@ export default function LeftSidebar() {
   const user = auth.user;
   
   const [open,setOpen] = useState(false);
+  const { scrollToTopStories } = useContext(ScrollContext);
   
   const sidebarItems = [
-      {icon : <Home/>,
+      {icon : <Home
+               onClick={scrollToTopStories}/>,
        text : "Home" },
       {icon : <Search/>,
        text : "Search" },

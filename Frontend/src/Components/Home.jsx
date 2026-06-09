@@ -30,8 +30,8 @@ const Home = () => {
     return (
         <div className='flex hide-scrollbar'>
             <div className='grow hide-scrollbar'>
-                <Feed />
                 <Outlet />
+                <Feed />
             </div>
             <div className='w-[18%] fixed  overflow-y-scroll hide-scrollbar top-0 right-0 min-w-[220px] max-w-[300px] h-screen border-l hidden lg:block'>
               <RightSidebar />

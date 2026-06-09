@@ -9,7 +9,7 @@ import EditProfile from './Components/EditProfile.jsx';
 import ChatPage from './Components/ChatPage.jsx';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { createContext, useEffect, useRef } from 'react';
 import { setSocket } from './Redux/socketSlice.js';
 import { setOnlineUsers } from './Redux/chatSlice.js';
 import { setLikeNotification } from './Redux/rtnSlice.js';
@@ -19,6 +19,9 @@ import MobileComments from './Components/MobileComments.jsx';
 import SearchUser from './Components/SearchUser.jsx';
 
 const socketURL = import.meta.env.VITE_URL;
+
+
+export const ScrollContext = createContext();
 
 const browserRouter = createBrowserRouter([
   {
@@ -89,11 +92,26 @@ useEffect(() => {
 
 }, [user, dispatch]);
    
+   const storiesRef = useRef(null);
+
+  const scrollToTopStories = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
+
   return (
-    <>
+    <ScrollContext.Provider
+      value={{
+        storiesRef,
+        scrollToTopStories,
+      }}
+    >
       <RouterProvider router={browserRouter} />
-    </>
-  )
+    </ScrollContext.Provider>
+  );
+  
 }
 
 export default App;

@@ -29,7 +29,7 @@ const PORT=process.env.PORT||3000;
 
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/post',postRoutes);
-app.use('/api/v1/message',messageRoutes);
+app.use('/api/v1/message',messageRoutes); 
 app.use('/api/v1/story',storyRoutes);
 
 

@@ -11,6 +11,8 @@ import { setAuthUser } from '@/Redux/authslice.js';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.jsx';
 import useTheme from '@/Redux/theme.js';
 import { Button } from './ui/button.jsx';
+import { useContext } from "react";
+import { ScrollContext } from "../App.jsx";
 
 export default function MobileUI() {  
     
@@ -21,7 +23,12 @@ export default function MobileUI() {
   const auth = useSelector(state => state.auth) || {};
   const user = auth.user;
   
+//   const context = useContext(ScrollContext);
+//   console.log("here");
+// console.log(context);
+  
   const [open,setOpen] = useState(false);
+  const { scrollToTopStories } = useContext(ScrollContext);
   
   const headerItems = [
       //   {icon : <TrendingUp/>,
@@ -34,7 +41,9 @@ export default function MobileUI() {
   ];
   
   const footerItems = [
-      {icon : <Home/>,
+      {icon : <Home
+              onClick={scrollToTopStories}/>
+        ,
        text : "Home" },
       {icon : <Search/>,
        text : "Search" },
@@ -82,6 +91,7 @@ export default function MobileUI() {
          case 'Create':
            setOpen(true);   break;
          case 'Home':
+           
            navigate('/'); 
              break;
          case 'Profile':
@@ -106,9 +116,9 @@ export default function MobileUI() {
    <img src={themeMode === 'dark' ? '/white.png' : '/Black.png'} className='w-30 h-12'/>
      <a href='https://github.com/Sumit70510' rel='noreferrer' title='About The Developer' target='_blank' className='text-slate-950 dark:text-slate-100'>
         <Info />
-      </a> 
+     </a> 
   </div>
-  <div className="flex items-center gap-3 relative">
+  <div className="flex items-end  relative">
     {headerItems.map((item, index) => (
       item.text === 'Notifications' ? (
         <div key={index} className="relative">
@@ -116,14 +126,16 @@ export default function MobileUI() {
             <PopoverTrigger asChild>
               <button
                 className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 relative text-slate-950 dark:text-slate-100"
-                aria-label={item.text}
-              >
+                aria-label={item.text}>
+                  
                 <span className="text-xl">{item.icon}</span>
-                {likeNotification.length > 0 && (
-                  <span className="absolute bottom-4.5 left-4.5 bg-red-600 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center shadow-md">
-                    {likeNotification.length}
-                  </span>
-                )}
+                  
+                  {likeNotification.length > 0 && (
+                    <span className="absolute bottom-4.5 left-4.5 bg-red-600 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center shadow-md">
+                     {likeNotification.length}
+                    </span>
+                   )}
+                   
               </button>
             </PopoverTrigger>
 
@@ -161,7 +173,7 @@ export default function MobileUI() {
           <span className="text-xl">{item.icon}</span>
         </button>
       )
-    ))}
+    )) }
     <button
       type="button"
       className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 text-slate-950 dark:text-slate-100"

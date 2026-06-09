@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useEffect, useRef, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import LeftSidebar from './LeftSidebar.jsx';
 import MobileUI from './MobileUI.jsx';
 import useTheme from '@/Redux/theme.js';
+
+
 export default function MainLayout() {
 
   const { themeMode } = useTheme();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 690);
 
+  
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 690);
     window.addEventListener('resize', handleResize);
@@ -16,6 +19,7 @@ export default function MainLayout() {
 
 
   return (
+      
     <div className="min-h-screen flex hide-scrollbar">
       {/* Left Sidebar min-w-[200px] max-w-[250px]*/}
      {/* Sidebar / Mobile UI */}
@@ -39,9 +43,6 @@ export default function MainLayout() {
          </div>
         </>
       )}
-      
-      
-
     </div>
   );
 }
