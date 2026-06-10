@@ -26,9 +26,10 @@ export default function LeftSidebar() {
   const [open,setOpen] = useState(false);
   const { scrollToTopStories } = useContext(ScrollContext);
   
+    const { scrollContainerRef } = useContext(ScrollContext);
+  
   const sidebarItems = [
-      {icon : <Home
-               onClick={scrollToTopStories}/>,
+      {icon : <Home/>,
        text : "Home" },
       {icon : <Search/>,
        text : "Search" },
@@ -89,7 +90,9 @@ export default function LeftSidebar() {
          case 'Create':
            setOpen(true);   break;
          case 'Home':
-           navigate('/');   break;
+            navigate('/');   
+            scrollToTopStories();
+           break;
          case 'Profile':
            navigate(`/profile/${user._id}`); break;
          case 'Theme':
@@ -147,8 +150,9 @@ export default function LeftSidebar() {
             sidebarItems.map((item,index)=>{
                return(
                 <div key={index} className={`flex items-center gap-3 relative rounded-lg p-3 my-3 cursor-pointer transition ${themeMode === 'dark' ? 'bg-transparent hover:bg-zinc-800' : 'hover:bg-gray-200'}`} onClick={()=>sidebarHandler(item.text)}>
-                 <div className={`${themeMode === 'dark' ? 'w-6 h-6 text-slate-100' : 'w-6 h-6 text-slate-950'}`}>{item.icon}</div>
-                  {isSidebarExpanded && <span className={`${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>{item.text}</span>}
+                 <div className={`${themeMode === 'dark' ? 'w-6 h-6 text-slate-100' : 'w-6 h-6 text-slate-950'}`}>{item.icon}
+                 </div>
+                {isSidebarExpanded && <span className={`${themeMode === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>{item.text}</span>}
                   
                   {
                     item.text==='Notifications'&&likeNotification.length!==0&&

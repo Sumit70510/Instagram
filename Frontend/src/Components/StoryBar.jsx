@@ -8,16 +8,12 @@ export default function StoryBar({
   onGroupClick,
   onCreateStory,
 }) {
-  const ownGroupIndex = groups.findIndex(
+  const ownGroup = groups.find(
     (group) =>
       String(group.user?._id) === String(currentUser?._id)
   );
 
-  const hasOwnGroup = ownGroupIndex !== -1;
-
-  const ownGroup = hasOwnGroup
-    ? groups[ownGroupIndex]
-    : null;
+  const hasOwnGroup = !!ownGroup;
 
   const ownHasUnviewed = ownGroup
     ? ownGroup.stories?.some((story) => {
@@ -37,44 +33,46 @@ export default function StoryBar({
 
   return (
     <div
-        className="
-          flex
-          flex-nowrap
-          overflow-x-auto
-          overflow-y-hidden
-          gap-4
-          w-full
-          min-w-0
-          scrollbar-none
-          snap-x
-          snap-mandatory
-          touch-pan-x
-          mb-4
-          bg-transparent
-          p-2
-          sm:p-4
-          rounded-xl
-          items-center
-          backdrop-blur-sm
-        "
-        style={{
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
+      className="
+        flex
+        flex-nowrap
+        overflow-x-auto
+        overflow-y-hidden
+        gap-4
+        w-full
+        min-w-0
+        scrollbar-none
+        snap-x
+        snap-mandatory
+        touch-pan-x
+        mb-4
+        bg-transparent
+        p-2
+        sm:p-4
+        rounded-xl
+        items-center
+        backdrop-blur-sm
+      "
+      style={{
+        WebkitOverflowScrolling: "touch",
+      }}
+    >
       {/* YOUR STORY */}
 
-      <div className="
-             flex
-             flex-col
-             items-center
-             shrink-0
-             snap-start
-           " >
+      <div
+        className="
+          flex
+          flex-col
+          items-center
+          shrink-0
+          snap-start
+        "
+      >
         <button
           type="button"
           onClick={() =>
             hasOwnGroup
-              ? onGroupClick?.(ownGroupIndex)
+              ? onGroupClick?.(ownGroup.user._id)
               : onCreateStory?.()
           }
           className="
@@ -99,7 +97,6 @@ export default function StoryBar({
             transition
             hover:shadow-md
           "
-          aria-label="Your story"
         >
           <div
             className={`
@@ -118,14 +115,18 @@ export default function StoryBar({
                   : ""
               }
             `}
-          > 
-            <Avatar className={`${"h-full w-full"}`}>
-              <AvatarImage src={currentUser?.profilePicture} alt="Profile Photo" />
+          >
+            <Avatar className="h-full w-full">
+              <AvatarImage
+                src={currentUser?.profilePicture}
+                alt="Profile Photo"
+              />
               <AvatarFallback>
-                {currentUser?.username?.slice(0, 2)?.toUpperCase()}
+                {currentUser?.username
+                  ?.slice(0, 2)
+                  ?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            
           </div>
 
           <div
@@ -154,21 +155,12 @@ export default function StoryBar({
               text-white
               shadow-lg
             "
-            role="button"
-            aria-label="Add story"
           >
             <PlusIcon className="h-4 w-4" />
           </div>
         </button>
 
-        <span
-          className="
-            text-xs
-            mt-1
-            text-slate-500
-            dark:text-slate-400
-          "
-        >
+        <span className="text-xs mt-1 text-slate-500 dark:text-slate-400">
           Your story
         </span>
       </div>
@@ -180,17 +172,13 @@ export default function StoryBar({
           No stories available yet.
         </div>
       ) : (
-        otherGroups.map((group, index) => (
+        otherGroups.map((group) => (
           <StoryCard
             key={group.user._id}
             group={group}
             currentUser={currentUser}
             onClick={() =>
-              onGroupClick?.(
-                hasOwnGroup
-                  ? index + 1
-                  : index
-              )
+              onGroupClick?.(group.user._id)
             }
           />
         ))

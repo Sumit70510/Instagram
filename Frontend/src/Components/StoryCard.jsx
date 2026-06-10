@@ -19,25 +19,25 @@ export default function StoryCard({
     : "bg-gray-300 dark:bg-zinc-600 p-[3px]";
 
   return (
-      <button
-          type="button"
-          onClick={onClick}
-          className="
-            flex
-            flex-col
-            items-center
-            cursor-pointer
-            rounded-3xl
-            transition-all
-            duration-200
-            hover:scale-[1.03]
-            focus:outline-none
-            box-border
-            self-center
-            shrink-0
-            snap-start
-          "
-        >
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        flex
+        flex-col
+        items-center
+        cursor-pointer
+        rounded-3xl
+        transition-all
+        duration-200
+        hover:scale-[1.03]
+        focus:outline-none
+        box-border
+        self-center
+        shrink-0
+        snap-start
+      "
+    >
       <div
         className="
           flex
@@ -64,25 +64,17 @@ export default function StoryCard({
             justify-center
           `}
         >
-           <Avatar className={`${"h-full w-full"}`}>
-              <AvatarImage src={group.user?.profilePicture} alt="Profile Photo" />
-              <AvatarFallback>
-                {group.user?.username?.slice(0, 2)?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          {/* <img
-            src={group.user.profilePicture}
-            alt={group.user.username}
-            className="
-              block
-              w-full
-              h-full
-              rounded-full
-              object-cover
-              border-2
-              border-white
-            "
-          /> */}
+          <Avatar className="h-full w-full">
+            <AvatarImage
+              src={group.user?.profilePicture}
+              alt={group.user?.username}
+            />
+            <AvatarFallback>
+              {group.user?.username
+                ?.slice(0, 2)
+                ?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
 
@@ -95,7 +87,7 @@ export default function StoryCard({
           text-center
         "
       >
-        {group.user.username}
+        {group.user?.username}
       </span>
     </button>
   );

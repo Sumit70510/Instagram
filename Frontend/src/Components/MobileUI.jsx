@@ -28,6 +28,7 @@ export default function MobileUI() {
 // console.log(context);
   
   const [open,setOpen] = useState(false);
+  const { scrollContainerRef } = useContext(ScrollContext);
   const { scrollToTopStories } = useContext(ScrollContext);
   
   const headerItems = [
@@ -41,8 +42,7 @@ export default function MobileUI() {
   ];
   
   const footerItems = [
-      {icon : <Home
-              onClick={scrollToTopStories}/>
+      {icon : <Home/>
         ,
        text : "Home" },
       {icon : <Search/>,
@@ -91,8 +91,8 @@ export default function MobileUI() {
          case 'Create':
            setOpen(true);   break;
          case 'Home':
-           
-           navigate('/'); 
+            navigate('/'); 
+            scrollToTopStories();
              break;
          case 'Profile':
            navigate(`/profile/${user._id}`); break;
@@ -186,7 +186,8 @@ export default function MobileUI() {
 </header>
 
 
-    <div className="flex-1 overflow-y-scroll hide-scrollbar pt-12 pb-12">
+    <div className="flex-1 overflow-y-scroll hide-scrollbar pt-12 pb-12"
+          ref={scrollContainerRef} >
       <Outlet />
     </div>
 

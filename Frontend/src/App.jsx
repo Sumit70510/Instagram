@@ -92,22 +92,39 @@ useEffect(() => {
 
 }, [user, dispatch]);
    
-   const storiesRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+const storiesRef = useRef(null);
 
-  const scrollToTopStories = () => {
-  window.scrollTo({
-    top: 0,
+const scrollToTopStories = () => {
+
+  // Desktop
+  storiesRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+
+  // Mobile
+  if (!scrollContainerRef.current || !storiesRef.current) return;
+
+  const container = scrollContainerRef.current;
+
+  const targetPosition =
+    storiesRef.current.offsetTop - 70;
+
+  container.scrollTo({
+    top: targetPosition,
     behavior: "smooth",
   });
 };
 
   return (
     <ScrollContext.Provider
-      value={{
-        storiesRef,
-        scrollToTopStories,
-      }}
-    >
+  value={{
+    scrollContainerRef,
+    storiesRef,
+    scrollToTopStories,
+  }}
+>
       <RouterProvider router={browserRouter} />
     </ScrollContext.Provider>
   );

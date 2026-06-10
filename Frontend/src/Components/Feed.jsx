@@ -1,29 +1,45 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+} from "react";
 import { useSelector } from "react-redux";
 import Posts from "./Posts.jsx";
 import StoryBar from "./StoryBar.jsx";
 import StoryViewer from "./StoryViewer.jsx";
 import CreateStory from "./CreateStory.jsx";
 import api from "@/Lib/api.js";
-import { useContext } from "react";
 import { ScrollContext } from "../App.jsx";
 
 export default function Feed() {
   const [stories, setStories] = useState([]);
-  const [selectedGroupIndex, setSelectedGroupIndex] = useState(null);
-  const [selectedStoryIndex, setSelectedStoryIndex] = useState(0);
-  const [storyProgress, setStoryProgress] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const { user } = useSelector((store) => store.auth);
-  const { storiesRef } = useContext(ScrollContext);
+  // FIX: store selected group by user id
+  const [selectedGroupUserId, setSelectedGroupUserId] =
+    useState(null);
+
+  const [selectedStoryIndex, setSelectedStoryIndex] =
+    useState(0);
+  const [storyProgress, setStoryProgress] =
+    useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] =
+    useState(false);
+
+  const { user } = useSelector(
+    (store) => store.auth
+  );
+
+  const { storiesRef } =
+    useContext(ScrollContext);
 
   const storyGroups = useMemo(() => {
     const grouped = new Map();
 
     stories.forEach((story) => {
-      const userId = story.user?._id || story.user;
+      const userId =
+        story.user?._id || story.user;
 
       const group = grouped.get(userId) || {
         user: story.user,
@@ -35,49 +51,74 @@ export default function Feed() {
       grouped.set(userId, group);
     });
 
-    const groups = Array.from(grouped.values()).map((group) => ({
+    const groups = Array.from(
+      grouped.values()
+    ).map((group) => ({
       ...group,
       stories: group.stories.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        (a, b) =>
+          new Date(a.createdAt) -
+          new Date(b.createdAt)
       ),
     }));
 
     return groups.sort((a, b) => {
       const aIsMe =
-        String(a.user?._id) === String(user?._id);
+        String(a.user?._id) ===
+        String(user?._id);
 
       const bIsMe =
-        String(b.user?._id) === String(user?._id);
+        String(b.user?._id) ===
+        String(user?._id);
 
       if (aIsMe) return -1;
       if (bIsMe) return 1;
 
-      const aHasUnviewed = a.stories.some((story) => {
-        const viewers = story.viewers || [];
+      const aHasUnviewed =
+        a.stories.some((story) => {
+          const viewers =
+            story.viewers || [];
 
-        return !viewers.some(
-          (viewerId) =>
-            String(viewerId) === String(user?._id)
-        );
-      });
+          return !viewers.some(
+            (viewerId) =>
+              String(viewerId) ===
+              String(user?._id)
+          );
+        });
 
-      const bHasUnviewed = b.stories.some((story) => {
-        const viewers = story.viewers || [];
+      const bHasUnviewed =
+        b.stories.some((story) => {
+          const viewers =
+            story.viewers || [];
 
-        return !viewers.some(
-          (viewerId) =>
-            String(viewerId) === String(user?._id)
-        );
-      });
+          return !viewers.some(
+            (viewerId) =>
+              String(viewerId) ===
+              String(user?._id)
+          );
+        });
 
-      if (aHasUnviewed && !bHasUnviewed) return -1;
-      if (!aHasUnviewed && bHasUnviewed) return 1;
+      if (
+        aHasUnviewed &&
+        !bHasUnviewed
+      )
+        return -1;
+
+      if (
+        !aHasUnviewed &&
+        bHasUnviewed
+      )
+        return 1;
 
       const aLatest =
-        a.stories[a.stories.length - 1]?.createdAt || 0;
+        a.stories[
+          a.stories.length - 1
+        ]?.createdAt || 0;
 
       const bLatest =
-        b.stories[b.stories.length - 1]?.createdAt || 0;
+        b.stories[
+          b.stories.length - 1
+        ]?.createdAt || 0;
 
       return (
         new Date(bLatest) -
@@ -86,13 +127,25 @@ export default function Feed() {
     });
   }, [stories, user]);
 
+  // derive current index from user id
+  const selectedGroupIndex =
+    selectedGroupUserId !== null
+      ? storyGroups.findIndex(
+          (group) =>
+            String(group.user?._id) ===
+            String(selectedGroupUserId)
+        )
+      : null;
+
   useEffect(() => {
     const fetchStories = async () => {
       try {
         const res = await api.get("/story");
 
         if (res.data.success) {
-          setStories(res.data.stories || []);
+          setStories(
+            res.data.stories || []
+          );
         }
       } catch (error) {
         console.error(
@@ -110,8 +163,19 @@ export default function Feed() {
     storyIndex = 0,
     resetPaused = false
   ) => {
-    setSelectedGroupIndex(groupIndex);
-    setSelectedStoryIndex(storyIndex);
+    const group =
+      storyGroups[groupIndex];
+
+    if (!group) return;
+
+    setSelectedGroupUserId(
+      group.user._id
+    );
+
+    setSelectedStoryIndex(
+      storyIndex
+    );
+
     setStoryProgress(0);
 
     if (resetPaused) {
@@ -119,9 +183,7 @@ export default function Feed() {
     }
 
     const story =
-      storyGroups[groupIndex]?.stories?.[
-        storyIndex
-      ];
+      group.stories?.[storyIndex];
 
     if (!story) return;
 
@@ -131,7 +193,8 @@ export default function Feed() {
           return item;
         }
 
-        const viewers = item.viewers || [];
+        const viewers =
+          item.viewers || [];
 
         const alreadyViewed =
           viewers.some(
@@ -146,7 +209,10 @@ export default function Feed() {
 
         return {
           ...item,
-          viewers: [...viewers, user._id],
+          viewers: [
+            ...viewers,
+            user._id,
+          ],
         };
       })
     );
@@ -164,7 +230,11 @@ export default function Feed() {
   };
 
   const handleNextStory = () => {
-    if (selectedGroupIndex === null) return;
+    if (
+      selectedGroupIndex === null ||
+      selectedGroupIndex < 0
+    )
+      return;
 
     const currentGroup =
       storyGroups[selectedGroupIndex];
@@ -193,13 +263,17 @@ export default function Feed() {
       return;
     }
 
-    setSelectedGroupIndex(null);
+    setSelectedGroupUserId(null);
     setSelectedStoryIndex(0);
     setStoryProgress(0);
   };
 
   const handlePrevStory = () => {
-    if (selectedGroupIndex === null) return;
+    if (
+      selectedGroupIndex === null ||
+      selectedGroupIndex < 0
+    )
+      return;
 
     const currentGroup =
       storyGroups[selectedGroupIndex];
@@ -216,13 +290,16 @@ export default function Feed() {
 
     if (selectedGroupIndex > 0) {
       const previousGroup =
-        storyGroups[selectedGroupIndex - 1];
+        storyGroups[
+          selectedGroupIndex - 1
+        ];
 
       if (!previousGroup) return;
 
       openStoryAt(
         selectedGroupIndex - 1,
-        previousGroup.stories.length - 1
+        previousGroup.stories
+          .length - 1
       );
     }
   };
@@ -230,7 +307,10 @@ export default function Feed() {
   useEffect(() => {
     const STORY_DURATION = 15000;
 
-    if (selectedGroupIndex === null) {
+    if (
+      selectedGroupIndex === null ||
+      selectedGroupIndex < 0
+    ) {
       setStoryProgress(0);
       return;
     }
@@ -239,7 +319,8 @@ export default function Feed() {
       return;
     }
 
-    const startPercent = storyProgress;
+    const startPercent =
+      storyProgress;
 
     const remainingTime =
       STORY_DURATION *
@@ -255,14 +336,19 @@ export default function Feed() {
         const elapsed =
           Date.now() - startTime;
 
-        const nextProgress = Math.min(
-          100,
-          startPercent +
-            (elapsed / remainingTime) *
-              (100 - startPercent)
-        );
+        const nextProgress =
+          Math.min(
+            100,
+            startPercent +
+              (elapsed /
+                remainingTime) *
+                (100 -
+                  startPercent)
+          );
 
-        setStoryProgress(nextProgress);
+        setStoryProgress(
+          nextProgress
+        );
       }, 50);
 
     const autoPlayTimer =
@@ -286,7 +372,9 @@ export default function Feed() {
     storyGroups,
   ]);
 
-  const handleStoryCreated = (story) => {
+  const handleStoryCreated = (
+    story
+  ) => {
     setStories((prev) => [
       story,
       ...prev,
@@ -294,19 +382,44 @@ export default function Feed() {
   };
 
   const selectedGroup =
-    selectedGroupIndex !== null
-      ? storyGroups[selectedGroupIndex]
+    selectedGroupIndex !== null &&
+    selectedGroupIndex >= 0
+      ? storyGroups[
+          selectedGroupIndex
+        ]
       : null;
 
   return (
     <div className="flex-1 my-8 flex flex-col hide-scrollbar items-center">
-      <div className="grid w-full max-w-3xl px-2"  ref={storiesRef}>
+      <div
+        className="grid w-full max-w-3xl px-2"
+        ref={storiesRef}
+      >
         <StoryBar
           groups={storyGroups}
           currentUser={user}
-          onGroupClick={(index) =>
-            openStoryAt(index, 0, true)
-          }
+          onGroupClick={(
+            userId
+          ) => {
+            const groupIndex =
+              storyGroups.findIndex(
+                (group) =>
+                  String(
+                    group.user?._id
+                  ) ===
+                  String(userId)
+              );
+
+            if (
+              groupIndex !== -1
+            ) {
+              openStoryAt(
+                groupIndex,
+                0,
+                true
+              );
+            }
+          }}
           onCreateStory={() =>
             setIsCreateOpen(true)
           }
@@ -317,10 +430,20 @@ export default function Feed() {
 
       <StoryViewer
         group={selectedGroup}
-        groupIndex={selectedGroupIndex}
-        storyIndex={selectedStoryIndex}
-        totalGroups={storyGroups.length}
-        storyProgress={storyProgress}
+        groupIndex={
+          selectedGroupIndex >= 0
+            ? selectedGroupIndex
+            : null
+        }
+        storyIndex={
+          selectedStoryIndex
+        }
+        totalGroups={
+          storyGroups.length
+        }
+        storyProgress={
+          storyProgress
+        }
         isPaused={isPaused}
         onTogglePlay={() =>
           setIsPaused(
@@ -328,33 +451,35 @@ export default function Feed() {
           )
         }
         onClose={() =>
-          setSelectedGroupIndex(null)
+          setSelectedGroupUserId(
+            null
+          )
         }
         onPrevGroup={() => {
           if (
-            selectedGroupIndex === null
+            selectedGroupIndex ===
+              null ||
+            selectedGroupIndex <= 0
           )
             return;
 
-          const prevIndex =
-            selectedGroupIndex - 1;
-
-          if (prevIndex >= 0) {
-            openStoryAt(
-              prevIndex,
-              0,
-              false
-            );
-          }
+          openStoryAt(
+            selectedGroupIndex -
+              1,
+            0
+          );
         }}
         onNextGroup={() => {
           if (
-            selectedGroupIndex === null
+            selectedGroupIndex ===
+              null ||
+            selectedGroupIndex < 0
           )
             return;
 
           const nextIndex =
-            selectedGroupIndex + 1;
+            selectedGroupIndex +
+            1;
 
           if (
             nextIndex <
@@ -362,8 +487,7 @@ export default function Feed() {
           ) {
             openStoryAt(
               nextIndex,
-              0,
-              false
+              0
             );
           }
         }}
@@ -377,7 +501,9 @@ export default function Feed() {
 
       <CreateStory
         open={isCreateOpen}
-        setOpen={setIsCreateOpen}
+        setOpen={
+          setIsCreateOpen
+        }
         onStoryCreated={
           handleStoryCreated
         }
