@@ -111,11 +111,11 @@ export default function Login() {
             </div>
             
              {
-               loading?(<Button>
+               loading?(<Button className={"bg-black text-amber-100 hover:bg-zinc-900"}>
                        <Loader2 className='mr-2 h-4 w-4 animate-spin'/> 
                          Please Wait...                
                       </Button>)
-              : confirm ? (<Button type='submit'>Continue</Button>) : (<Button type='submit'>Login</Button>)
+              : confirm ? (<Button type='submit' className={"bg-black text-amber-100 hover:bg-zinc-900"}>Continue</Button>) : (<Button className={"bg-black text-amber-100 hover:bg-zinc-900"} type='submit'>Login</Button>)
              }  
             <span className="text-center">
                Doesn't Have an Account ?

@@ -71,28 +71,28 @@ export default function Signup()
              Username
             </span>
             <Input className='focus-visible:ring-transparent my-2  border border-zinc-300'
-             type='text' name='username' value={input.username} onChange={changeEventHandler}/> 
+             type='text' name='username' value={input.username} placeholder='Username' onChange={changeEventHandler}/> 
            </div>  
            <div>
             <span  className='font-medium my-2'>
              Email
             </span>
             <Input className='focus-visible:ring-transparent my-2  border border-zinc-300'
-             type='email' name='email' value={input.email} onChange={changeEventHandler}/> 
+             type='email' name='email' value={input.email} placeholder='Email' onChange={changeEventHandler}/> 
            </div>  
            <div>
             <span  className='font-medium my-2'>
              Password
             </span>
             <Input className='focus-visible:ring-transparent my-2  border border-zinc-300'
-             type='password' name='password'value={input.password} onChange={changeEventHandler}/> 
+             type='password' name='password'value={input.password} placeholder='********'onChange={changeEventHandler}/> 
            </div>
            {
-             loading?(<Button>
+             loading?(<Button className={"bg-black text-amber-100 hover:bg-zinc-900"}>
                        <Loader2 className='mr-2 h-4 w-4 animate-spin'/> 
                          Please Wait...                
                       </Button>)
-              : (<Button type='submit'>SignUp</Button>)
+              : (<Button type='submit' className={"bg-black text-amber-100 hover:bg-zinc-900"}>SignUp</Button>)
              }  
            <span className="text-center">
             Already Have an Account ?
