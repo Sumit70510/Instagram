@@ -117,7 +117,7 @@ export default function CreatePost({open,setOpen}) {
           </div>
         </div>  
         <Textarea
-          value={caption}
+            value={caption} 
           onChange={(e)=>setCaption(e.target.value)}
           className={`focus-visible:ring-transparent ${themeMode === 'dark' ? 'text-slate-100 bg-zinc-900 border border-zinc-700' : 'text-black'}`}
           placeholder='Write a Caption........'
