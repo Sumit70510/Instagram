@@ -1,134 +1,206 @@
-import Login from './Components/Login.jsx'
-import Signup from './Components/Signup.jsx';
-import { createBrowserRouter } from 'react-router-dom';
-import MainLayout from './Components/MainLayout.jsx';
-import Home from './Components/Home.jsx';
-import Profile from './Components/Profile.jsx';
-import { RouterProvider } from 'react-router-dom';
-import EditProfile from './Components/EditProfile.jsx';
-import ChatPage from './Components/ChatPage.jsx';
-import { io } from 'socket.io-client';
-import { useDispatch, useSelector } from 'react-redux';
-import { createContext, useEffect, useRef } from 'react';
-import { setSocket } from './Redux/socketSlice.js';
-import { setOnlineUsers } from './Redux/chatSlice.js';
-import { setLikeNotification } from './Redux/rtnSlice.js';
-import { setAuthUser } from './Redux/authslice.js';
-import ProtectedRoutes from './Components/ProtectedRoutes.jsx';
-import MobileComments from './Components/MobileComments.jsx';
-import SearchUser from './Components/SearchUser.jsx';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { io } from "socket.io-client";
+
+import Login from "./Components/Login.jsx";
+import Signup from "./Components/Signup.jsx";
+import MainLayout from "./Components/MainLayout.jsx";
+import Home from "./Components/Home.jsx";
+import Profile from "./Components/Profile.jsx";
+import EditProfile from "./Components/EditProfile.jsx";
+import ChatPage from "./Components/ChatPage.jsx";
+import ProtectedRoutes from "./Components/ProtectedRoutes.jsx";
+import MobileComments from "./Components/MobileComments.jsx";
+import SearchUser from "./Components/SearchUser.jsx";
+
+import { setSocket } from "./Redux/socketSlice.js";
+import { setOnlineUsers } from "./Redux/chatSlice.js";
+import { setLikeNotification } from "./Redux/rtnSlice.js";
 
 const socketURL = import.meta.env.VITE_URL;
 
-
-export const ScrollContext = createContext();
+export const ScrollContext = createContext(null);
 
 const browserRouter = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: (
       <ProtectedRoutes>
         <MainLayout />
       </ProtectedRoutes>
     ),
     children: [
-      { index: true, element: <Home /> },
-      { path: 'profile/:id', element: <Profile /> },
-      { path: 'account/edit', element: <EditProfile /> },
-      { path: 'chat', element: <ChatPage /> },
-      { path: 'search', element: <SearchUser /> }
-    ]
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "profile/:id",
+        element: <Profile />,
+      },
+      {
+        path: "account/edit",
+        element: <EditProfile />,
+      },
+      {
+        path: "chat",
+        element: <ChatPage />,
+      },
+      {
+        path: "search",
+        element: <SearchUser />,
+      },
+    ],
   },
   {
-    path: '/:postId/comments',
+    path: "/:postId/comments",
     element: (
       <ProtectedRoutes>
         <MobileComments />
       </ProtectedRoutes>
-    )
+    ),
   },
-  { path: '/login', element: <Login /> },
-  { path: '/signup', element: <Signup /> }
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
 ]);
 
 function App() {
-  
-  const {user} = useSelector(store=>store.auth);
   const dispatch = useDispatch();
-  const {socket} = useSelector(store=>store.socketio);
-  
-useEffect(() => {
-  if (!user) {
-    if (socket) {
-      socket.off('getOnlineUsers');
-      socket.off('notification');
-      socket.close();
-      dispatch(setSocket(null));
-    }
-    return;
-  }
 
-  const socketio = io(socketURL, {
-    query: { userId: user._id },
-    transports: ['websocket']
-  });
+  const userId = useSelector((store) => store.auth.user?._id);
 
-  dispatch(setSocket(socketio));
-
-  socketio.on('getOnlineUsers', (onlineUsers) => {
-    dispatch(setOnlineUsers(onlineUsers));
-  });
-
-  socketio.on('notification', (notification) => {
-    dispatch(setLikeNotification(notification));
-  });
-
-  return () => {
-    socketio.off('getOnlineUsers');
-    socketio.off('notification');
-    socketio.close();
-    dispatch(setSocket(null));
-  };
-
-}, [user, dispatch]);
-   
   const scrollContainerRef = useRef(null);
-const storiesRef = useRef(null);
+  const storiesRef = useRef(null);
 
-const scrollToTopStories = () => {
+  useEffect(() => {
+    if (!userId) {
+      dispatch(setOnlineUsers([]));
+      dispatch(setSocket(null));
+      return undefined;
+    }
 
-  // Desktop
-  storiesRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
+    if (!socketURL) {
+      console.error(
+        "Socket connection failed: VITE_URL is not defined in the environment variables."
+      );
 
-  // Mobile
-  if (!scrollContainerRef.current || !storiesRef.current) return;
+      return undefined;
+    }
 
-  const container = scrollContainerRef.current;
+    const socketInstance = io(socketURL, {
+      query: {
+        userId,
+      },
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
-  const targetPosition =
-    storiesRef.current.offsetTop - 70;
+    const handleOnlineUsers = (onlineUsers) => {
+      dispatch(
+        setOnlineUsers(Array.isArray(onlineUsers) ? onlineUsers : [])
+      );
+    };
 
-  container.scrollTo({
-    top: targetPosition,
-    behavior: "smooth",
-  });
-};
+    const handleNotification = (notification) => {
+      if (!notification) return;
+
+      dispatch(setLikeNotification(notification));
+    };
+
+    const handleConnectionError = (error) => {
+      console.error("Socket connection error:", error.message);
+    };
+
+    dispatch(setSocket(socketInstance));
+
+    socketInstance.on("getOnlineUsers", handleOnlineUsers);
+    socketInstance.on("notification", handleNotification);
+    socketInstance.on("connect_error", handleConnectionError);
+
+    return () => {
+      socketInstance.off("getOnlineUsers", handleOnlineUsers);
+      socketInstance.off("notification", handleNotification);
+      socketInstance.off("connect_error", handleConnectionError);
+
+      socketInstance.disconnect();
+
+      dispatch(setSocket(null));
+      dispatch(setOnlineUsers([]));
+    };
+  }, [userId, dispatch]);
+
+  const scrollToTopStories = useCallback(() => {
+    const storiesElement = storiesRef.current;
+
+    if (!storiesElement) return;
+
+    const scrollContainer = scrollContainerRef.current;
+
+    /*
+     * If MainLayout uses a custom scrollable container,
+     * scroll that container instead of scrolling the whole page.
+     */
+    if (scrollContainer) {
+      const containerRect =
+        scrollContainer.getBoundingClientRect();
+
+      const storiesRect =
+        storiesElement.getBoundingClientRect();
+
+      const targetPosition =
+        scrollContainer.scrollTop +
+        storiesRect.top -
+        containerRect.top -
+        70;
+
+      scrollContainer.scrollTo({
+        top: Math.max(0, targetPosition),
+        behavior: "smooth",
+      });
+
+      return;
+    }
+
+    /*
+     * Fallback for layouts where the browser window
+     * is the main scrolling element.
+     */
+    storiesElement.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
+
+  const scrollContextValue = useMemo(
+    () => ({
+      scrollContainerRef,
+      storiesRef,
+      scrollToTopStories,
+    }),
+    [scrollToTopStories]
+  );
 
   return (
-    <ScrollContext.Provider
-  value={{
-    scrollContainerRef,
-    storiesRef,
-    scrollToTopStories,
-  }}
->
+    <ScrollContext.Provider value={scrollContextValue}>
       <RouterProvider router={browserRouter} />
     </ScrollContext.Provider>
   );
-  
 }
 
 export default App;
