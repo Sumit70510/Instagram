@@ -171,7 +171,7 @@ export default function ChatPage() {
   return (
     <main
       className={`
-        flex h-[100dvh] min-h-0 w-full overflow-hidden
+        flex h-dvh min-h-0 w-full overflow-hidden
         ${isMobile ? "" : "md:ml-[16%] md:w-[84%]"}
         ${pageTheme}
       `}
@@ -445,7 +445,7 @@ function ConversationList({
 }) {
   if (isLoading) {
     return (
-      <div className="flex h-full min-h-[240px] items-center justify-center px-4">
+      <div className="flex h-full min-h-60 items-center justify-center px-4">
         <div
           className={`
             flex items-center gap-2 text-sm
@@ -738,7 +738,7 @@ function SearchInput({
 
 function NoConversationsState({ isDarkMode }) {
   return (
-    <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
+    <div className="flex h-full min-h-80 flex-col items-center justify-center px-6 text-center">
       <div
         className={`
           mb-4 flex h-16 w-16 items-center
