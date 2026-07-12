@@ -1,43 +1,52 @@
-// import React from 'react';
-// import { Outlet } from 'react-router-dom';
-// import Feed from './Feed.jsx';
-// import useGetAllPost from '@/Hooks/useGetAllPost.jsx';
-// import useGetSuggestedUsers from '@/Hooks/useGetSuggestedUsers.jsx';
+import React from "react";
 
-// export default function Home() {
-//   useGetAllPost();
-//   useGetSuggestedUsers();
-//   return (
-//     <div className='flex'>
-//       <div className='flex-grow'>
-//         <Feed/>
-//         <Outlet/>
-//       </div> 
-//     </div>
-//   )
-// }
+import Feed from "./Feed.jsx";
+import RightSidebar from "./RightSidebar.jsx";
+import useGetAllPost from "@/Hooks/useGetAllPost.jsx";
+import useGetSuggestedUsers from "@/Hooks/useGetSuggestedUsers.jsx";
+import useTheme from "@/Redux/theme.js";
 
-import React from 'react';
-import Feed from './Feed.jsx';
-import { Outlet } from 'react-router-dom';
-import RightSidebar from './RightSidebar.jsx';
-import useGetAllPost from '@/Hooks/useGetAllPost.jsx';
-import useGetSuggestedUsers from '@/Hooks/useGetSuggestedUsers.jsx';
+export default function Home() {
+  useGetAllPost();
+  useGetSuggestedUsers();
 
-const Home = () => {
-    useGetAllPost();
-    useGetSuggestedUsers(); 
-    return (
-        <div className='flex hide-scrollbar'>
-            <div className='grow hide-scrollbar'>
-                <Outlet />
-                <Feed />
-            </div>
-            <div className='w-[18%] fixed  overflow-y-scroll hide-scrollbar top-0 right-0 min-w-[220px] max-w-[300px] h-screen border-l hidden lg:block'>
-              <RightSidebar />
-            </div>
-        </div>
-    )
+  const { themeMode } = useTheme();
+  const isDark = themeMode === "dark";
+
+  return (
+    <div
+      className={`
+        min-h-full w-full
+        ${
+          isDark
+            ? "bg-black text-white"
+            : "bg-white text-gray-950"
+        }
+      `}
+    >
+      <div
+        className="
+          mx-auto grid w-full max-w-[1060px]
+          grid-cols-1
+          lg:grid-cols-[minmax(0,630px)_300px]
+          lg:justify-center lg:gap-8 xl:gap-12
+        "
+      >
+        <section className="min-w-0">
+          <Feed />
+        </section>
+
+        <aside className="hidden min-w-0 lg:block">
+          <div
+            className="
+              sticky top-0 max-h-dvh overflow-y-auto
+              px-2 py-8 hide-scrollbar
+            "
+          >
+            <RightSidebar />
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
 }
-
-export default Home

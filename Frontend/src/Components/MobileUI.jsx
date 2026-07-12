@@ -1,207 +1,614 @@
-import { Heart, Home, Info, LogOut, Moon, MessageCircle, PlusIcon, Search, Sun, TrendingUp } from 'lucide-react';
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar.jsx';
-import api from '@/Lib/api.js';
-import { toast } from 'sonner';
-import CreatePost from './CreatePost.jsx';
-import { setPosts, setSelectedPost } from '@/Redux/postSlice.js';
-import { setAuthUser } from '@/Redux/authslice.js';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.jsx';
-import useTheme from '@/Redux/theme.js';
-import { Button } from './ui/button.jsx';
-import { useContext } from "react";
+import {
+  Heart,
+  Home,
+  Info,
+  LogOut,
+  Menu,
+  MessageCircle,
+  Moon,
+  PlusSquare,
+  Search,
+  Sun,
+} from "lucide-react";
+
+import React, { useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  NavLink,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { toast } from "sonner";
+
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.jsx";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover.jsx";
+
+import CreatePost from "./CreatePost.jsx";
+import api from "@/Lib/api.js";
+import { setPosts, setSelectedPost } from "@/Redux/postSlice.js";
+import { setAuthUser } from "@/Redux/authslice.js";
+import useTheme from "@/Redux/theme.js";
 import { ScrollContext } from "../App.jsx";
 
-export default function MobileUI() {  
-    
-   const navigate = useNavigate();
+export default function MobileUI() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
-  const { themeMode, toggleTheme } = useTheme();
-  
-  const auth = useSelector(state => state.auth) || {};
-  const user = auth.user;
-  
-//   const context = useContext(ScrollContext);
-//   console.log("here");
-// console.log(context);
-  
-  const [open,setOpen] = useState(false);
-  const { scrollContainerRef } = useContext(ScrollContext);
-  const { scrollToTopStories } = useContext(ScrollContext);
-  
-  const headerItems = [
-      //   {icon : <TrendingUp/>,
-      //    text : "Explore" },
-       {icon : <PlusIcon/>,
-       text : "Create" },
-      {icon : <Heart/>,
-       text : "Notifications" },
-       
-  ];
-  
-  const footerItems = [
-      {icon : <Home/>
-        ,
-       text : "Home" },
-      {icon : <Search/>,
-       text : "Search" },
-        {
-         icon : <LogOut/> ,
-         text : "Logout"
-        }
-      ,
-       {icon : <MessageCircle/>,
-         text : "Messages" }, 
-      {icon : (
-              <Avatar className='w-6 h-6 text-black'>
-                <AvatarImage src={user?.profilePicture}/>
-                <AvatarFallback>{user?.username?.slice(0,2).toUpperCase() || "CN"}</AvatarFallback>
-              </Avatar> ),
-       text : "Profile" },
-    ];
-  
 
-  const logoutHandler = async()=>
-   {
-     try
-      {
-        const res = await api.post('/user/logout');
-        if(res.data.success)
-         {
-           toast.success(res.data.message);
-           dispatch(setSelectedPost(null));
-           dispatch(setPosts([]));
-           dispatch(setAuthUser(null));
-           navigate('/login', { replace: true });
-         }      
-      } 
-     catch(error) {
-        toast.error(error.response?.data?.message || "Logout failed");
-       }
+  const { themeMode, toggleTheme } = useTheme();
+  const { scrollToTopStories } = useContext(ScrollContext);
+
+  const user = useSelector((state) => state.auth?.user);
+
+  const likeNotification = useSelector(
+    (state) =>
+      state.realTimeNotification?.likeNotification || []
+  );
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const isDark = themeMode === "dark";
+
+  const logoutHandler = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+
+      const res = await api.post("/user/logout");
+
+      if (res.data.success) {
+        dispatch(setSelectedPost(null));
+        dispatch(setPosts([]));
+        dispatch(setAuthUser(null));
+
+        toast.success(res.data.message);
+        navigate("/login", { replace: true });
+      } else {
+        toast.error(res.data.message || "Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Logout failed"
+      );
+    } finally {
+      setIsLoggingOut(false);
     }
-   
-  const navbarHandler = (textType)=>
-    {
-      switch(textType) 
-       {
-         case 'Logout':
-           logoutHandler(); break;
-         case 'Create':
-           setOpen(true);   break;
-         case 'Home':
-            navigate('/'); 
-            scrollToTopStories();
-             break;
-         case 'Profile':
-           navigate(`/profile/${user._id}`); break;
-         case 'Messages':
-           navigate('/chat'); break;
-          case 'Search' :
-            navigate('/Search'); break;  
-         default:
-           // Handle other cases if needed
-          break;
-       }
-    } 
-    
-   const {likeNotification} = useSelector(store=>store.realTimeNotification); 
-   
-    
+  };
+
+  const handleHomeClick = () => {
+    if (location.pathname === "/") {
+      scrollToTopStories();
+      return;
+    }
+
+    navigate("/");
+
+    window.setTimeout(() => {
+      scrollToTopStories();
+    }, 100);
+  };
+
+  const navItemClass = ({ isActive }) => {
+    return `
+      relative flex h-12 w-12 items-center justify-center
+      bg-transparent transition-transform duration-150
+      active:scale-90
+      focus:outline-none
+      focus-visible:outline-none
+      [-webkit-tap-highlight-color:transparent]
+      ${
+        isActive
+          ? isDark
+            ? "text-white"
+            : "text-black"
+          : isDark
+            ? "text-zinc-300"
+            : "text-gray-900"
+      }
+    `;
+  };
+
+  const actionButtonClass = `
+    relative flex h-10 w-10 items-center justify-center
+    rounded-lg bg-transparent
+    transition-transform duration-150
+    active:scale-90
+    focus:outline-none
+    focus-visible:outline-none
+    [-webkit-tap-highlight-color:transparent]
+    ${
+      isDark
+        ? "text-white hover:bg-zinc-900"
+        : "text-gray-950 hover:bg-gray-100"
+    }
+  `;
+
   return (
-    <div className="flex flex-col h-screen bg-white text-slate-950 dark:bg-black dark:text-slate-100">
-  <header className="h-12 flex items-center justify-between px-4 border-b border-slate-200 bg-white/90 text-slate-950 dark:border-zinc-800 dark:bg-black/95 dark:text-slate-100 fixed top-0 left-0 right-0 z-10 backdrop-blur-sm">
-  <div className='flex gap-1 items-center'>
-   <img src={themeMode === 'dark' ? '/white.png' : '/Black.png'} className='w-30 h-12'/>
-     <a href='https://github.com/Sumit70510' rel='noreferrer' title='About The Developer' target='_blank' className='text-slate-950 dark:text-slate-100'>
-        <Info />
-     </a> 
-  </div>
-  <div className="flex items-end  relative">
-    {headerItems.map((item, index) => (
-      item.text === 'Notifications' ? (
-        <div key={index} className="relative">
+    <>
+      {/* Mobile top navigation */}
+      <header
+        className={`
+          fixed inset-x-0 top-0 z-50
+          flex h-12 items-center justify-between
+          border-b px-3 backdrop-blur-xl
+          ${
+            isDark
+              ? "border-zinc-800 bg-black/95 text-white"
+              : "border-gray-200 bg-white/95 text-gray-950"
+          }
+        `}
+      >
+        {/* Logo */}
+        <div className="flex min-w-0 items-center">
+          <button
+            type="button"
+            onClick={handleHomeClick}
+            aria-label="Go to home"
+            className="
+              flex min-w-0 items-center
+              bg-transparent p-0
+              active:scale-[0.98]
+              focus:outline-none
+              [-webkit-tap-highlight-color:transparent]
+            "
+          >
+            <img
+              src={isDark ? "/white.png" : "/Black.png"}
+              alt="Instagram"
+              className="
+                h-8 w-auto max-w-[120px]
+                object-contain
+              "
+            />
+          </button>
+        </div>
+
+        {/* Header actions */}
+        <div className="flex shrink-0 items-center gap-0.5">
+          {/* Create */}
+          <button
+            type="button"
+            onClick={() => setIsCreateOpen(true)}
+            aria-label="Create post"
+            className={actionButtonClass}
+          >
+            <PlusSquare
+              className="h-6 w-6"
+              strokeWidth={2}
+            />
+          </button>
+
+          {/* Notifications */}
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 relative text-slate-950 dark:text-slate-100"
-                aria-label={item.text}>
-                  
-                <span className="text-xl">{item.icon}</span>
-                  
-                  {likeNotification.length > 0 && (
-                    <span className="absolute bottom-4.5 left-4.5 bg-red-600 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center shadow-md">
-                     {likeNotification.length}
-                    </span>
-                   )}
-                   
+                type="button"
+                aria-label="Notifications"
+                className={actionButtonClass}
+              >
+                <Heart
+                  className="h-6 w-6"
+                  strokeWidth={2}
+                />
+
+                {likeNotification.length > 0 && (
+                  <span
+                    className="
+                      absolute right-0.5 top-0.5
+                      flex h-[17px] min-w-[17px]
+                      items-center justify-center
+                      rounded-full bg-red-500 px-1
+                      text-[10px] font-bold leading-none
+                      text-white
+                    "
+                  >
+                    {likeNotification.length > 9
+                      ? "9+"
+                      : likeNotification.length}
+                  </span>
+                )}
               </button>
             </PopoverTrigger>
 
-            <PopoverContent className="bg-white text-slate-950 border border-slate-300 dark:bg-black/95 dark:text-slate-100 dark:border-zinc-800 w-64">
-              <div>
+            <PopoverContent
+              align="end"
+              sideOffset={8}
+              className={`
+                mr-2 w-[min(320px,calc(100vw-16px))]
+                rounded-xl border p-0 shadow-xl
+                ${
+                  isDark
+                    ? "border-zinc-800 bg-zinc-950 text-white"
+                    : "border-gray-200 bg-white text-gray-950"
+                }
+              `}
+            >
+              <div
+                className={`
+                  border-b px-4 py-3
+                  ${
+                    isDark
+                      ? "border-zinc-800"
+                      : "border-gray-200"
+                  }
+                `}
+              >
+                <h2 className="font-semibold">
+                  Notifications
+                </h2>
+              </div>
+
+              <div className="max-h-[360px] overflow-y-auto p-2">
                 {likeNotification.length === 0 ? (
-                  <p className="text-slate-700 dark:text-slate-300">No New Notification</p>
+                  <div className="px-3 py-8 text-center">
+                    <Heart
+                      className={`
+                        mx-auto h-8 w-8
+                        ${
+                          isDark
+                            ? "text-zinc-600"
+                            : "text-gray-300"
+                        }
+                      `}
+                      strokeWidth={1.5}
+                    />
+
+                    <p className="mt-3 text-sm font-medium">
+                      No new notifications
+                    </p>
+
+                    <p
+                      className={`
+                        mt-1 text-xs
+                        ${
+                          isDark
+                            ? "text-zinc-400"
+                            : "text-gray-500"
+                        }
+                      `}
+                    >
+                      New activity will appear here.
+                    </p>
+                  </div>
                 ) : (
-                  likeNotification.map((notification) => (
-                    <div key={notification?.userId} className="flex items-center gap-2 my-2">
-                      <Avatar className="w-6 h-6">
-                        <AvatarImage src={notification?.userDetails?.profilePicture} />
-                        <AvatarFallback>
-                          {notification?.userDetails?.username?.slice(0, 2).toUpperCase() || "CN"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="text-sm text-slate-700 dark:text-slate-300">
-                        <span className="font-bold">{notification?.userDetails?.username}</span>
-                        &nbsp;liked your post
-                      </p>
-                    </div>
-                  ))
+                  likeNotification.map(
+                    (notification, index) => (
+                      <button
+                        key={
+                          notification?._id ||
+                          `${notification?.userId}-${index}`
+                        }
+                        type="button"
+                        onClick={() => {
+                          const notificationUserId =
+                            notification?.userId ||
+                            notification?.userDetails?._id;
+
+                          if (notificationUserId) {
+                            navigate(
+                              `/profile/${notificationUserId}`
+                            );
+                          }
+                        }}
+                        className={`
+                          flex w-full items-center gap-3
+                          rounded-lg px-2 py-2.5
+                          text-left transition-colors
+                          ${
+                            isDark
+                              ? "hover:bg-zinc-900"
+                              : "hover:bg-gray-100"
+                          }
+                        `}
+                      >
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage
+                            src={
+                              notification?.userDetails
+                                ?.profilePicture
+                            }
+                            alt={
+                              notification?.userDetails
+                                ?.username || "User"
+                            }
+                            className="object-cover"
+                          />
+
+                          <AvatarFallback className="text-xs">
+                            {notification?.userDetails
+                              ?.username
+                              ?.slice(0, 2)
+                              ?.toUpperCase() || "US"}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <p className="min-w-0 text-sm">
+                          <span className="font-semibold">
+                            {notification?.userDetails
+                              ?.username || "Someone"}
+                          </span>{" "}
+                          liked your post
+                        </p>
+                      </button>
+                    )
+                  )
                 )}
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Menu */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label="More options"
+                className={actionButtonClass}
+              >
+                <Menu
+                  className="h-6 w-6"
+                  strokeWidth={2}
+                />
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent
+              align="end"
+              sideOffset={8}
+              className={`
+                mr-2 w-52 rounded-xl border
+                p-1.5 shadow-xl
+                ${
+                  isDark
+                    ? "border-zinc-800 bg-zinc-950 text-white"
+                    : "border-gray-200 bg-white text-gray-950"
+                }
+              `}
+            >
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className={`
+                  flex w-full items-center gap-3
+                  rounded-lg px-3 py-2.5
+                  text-sm transition-colors
+                  ${
+                    isDark
+                      ? "hover:bg-zinc-900"
+                      : "hover:bg-gray-100"
+                  }
+                `}
+              >
+                {isDark ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+
+                <span>
+                  {isDark ? "Light mode" : "Dark mode"}
+                </span>
+              </button>
+
+              <a
+                href="https://github.com/Sumit70510"
+                target="_blank"
+                rel="noreferrer"
+                className={`
+                  flex w-full items-center gap-3
+                  rounded-lg px-3 py-2.5
+                  text-sm transition-colors
+                  ${
+                    isDark
+                      ? "hover:bg-zinc-900"
+                      : "hover:bg-gray-100"
+                  }
+                `}
+              >
+                <Info className="h-5 w-5" />
+                <span>About developer</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={logoutHandler}
+                disabled={isLoggingOut}
+                className={`
+                  flex w-full items-center gap-3
+                  rounded-lg px-3 py-2.5
+                  text-sm text-red-500
+                  transition-colors
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                  ${
+                    isDark
+                      ? "hover:bg-zinc-900"
+                      : "hover:bg-gray-100"
+                  }
+                `}
+              >
+                <LogOut className="h-5 w-5" />
+
+                <span>
+                  {isLoggingOut
+                    ? "Logging out..."
+                    : "Log out"}
+                </span>
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
-      ) : (
-        <button
-          key={index}
-          className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 text-slate-950 dark:text-slate-100"
-          onClick={() => navbarHandler(item.text)}
-          aria-label={item.text}
+      </header>
+
+      {/* Mobile bottom navigation */}
+      <footer
+        className={`
+          fixed inset-x-0 bottom-0 z-50
+          border-t pb-[env(safe-area-inset-bottom)]
+          ${
+            isDark
+              ? "border-zinc-800 bg-black text-white"
+              : "border-gray-200 bg-white text-gray-950"
+          }
+        `}
+      >
+        <nav
+          className="
+            mx-auto flex h-14 max-w-md
+            items-center justify-around px-2
+          "
+          aria-label="Mobile navigation"
         >
-          <span className="text-xl">{item.icon}</span>
-        </button>
-      )
-    )) }
-    <button
-      type="button"
-      className="flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-2 text-slate-950 dark:text-slate-100"
-      onClick={toggleTheme}
-      aria-label="Toggle theme"
-    >
-      <span className="text-xl">{themeMode === 'dark' ? <Sun /> : <Moon />}</span>
-    </button>
-  </div>
-</header>
+          {/* Home */}
+          <button
+            type="button"
+            onClick={handleHomeClick}
+            aria-label="Home"
+            className={`
+              relative flex h-12 w-12
+              items-center justify-center
+              bg-transparent transition-transform
+              duration-150 active:scale-90
+              focus:outline-none
+              focus-visible:outline-none
+              [-webkit-tap-highlight-color:transparent]
+              ${
+                location.pathname === "/"
+                  ? isDark
+                    ? "text-white"
+                    : "text-black"
+                  : isDark
+                    ? "text-zinc-300"
+                    : "text-gray-900"
+              }
+            `}
+          >
+            <Home
+              className="h-6 w-6"
+              strokeWidth={
+                location.pathname === "/" ? 2.6 : 2
+              }
+              fill={
+                location.pathname === "/"
+                  ? "currentColor"
+                  : "none"
+              }
+            />
+          </button>
 
+          {/* Search */}
+          <NavLink
+            to="/search"
+            className={navItemClass}
+            aria-label="Search"
+          >
+            {({ isActive }) => (
+              <Search
+                className="h-6 w-6"
+                strokeWidth={isActive ? 2.8 : 2}
+              />
+            )}
+          </NavLink>
 
-    <div className="flex-1 overflow-y-scroll hide-scrollbar pt-12 pb-12"
-          ref={scrollContainerRef} >
-      <Outlet />
-    </div>
+          {/* Create */}
+          <button
+            type="button"
+            onClick={() => setIsCreateOpen(true)}
+            aria-label="Create post"
+            className={`
+              relative flex h-12 w-12
+              items-center justify-center
+              bg-transparent transition-transform
+              duration-150 active:scale-90
+              focus:outline-none
+              focus-visible:outline-none
+              [-webkit-tap-highlight-color:transparent]
+              ${
+                isDark
+                  ? "text-zinc-300"
+                  : "text-gray-900"
+              }
+            `}
+          >
+            <PlusSquare
+              className="h-6 w-6"
+              strokeWidth={2}
+            />
+          </button>
 
-    <footer className="h-12 flex items-center justify-around border-t border-slate-200 bg-white/90 text-slate-950 dark:border-zinc-800 dark:bg-black/95 dark:text-slate-100 fixed bottom-0 left-0 right-0 z-10 backdrop-blur-sm">
-       {footerItems.map((item, index) => (
-        <button
-          key={index}
-          className="flex items-center gap-3 relative hover:bg-slate-100 dark:hover:bg-zinc-900 cursor-pointer rounded-lg p-3 my-3 text-slate-950 dark:text-slate-100" 
-          onClick={()=>navbarHandler(item.text)} aria-label={item.text}>
-            <span className="text-xl">{item.icon}</span>   
-        </button>))
-       }
-     </footer>
-     <CreatePost open={open} setOpen={setOpen}/>
-   </div>
+          {/* Messages */}
+          <NavLink
+            to="/chat"
+            className={navItemClass}
+            aria-label="Messages"
+          >
+            {({ isActive }) => (
+              <MessageCircle
+                className="h-6 w-6"
+                strokeWidth={isActive ? 2.8 : 2}
+                fill="none"
+              />
+            )}
+          </NavLink>
+
+          {/* Profile */}
+          <NavLink
+            to={
+              user?._id
+                ? `/profile/${user._id}`
+                : "/login"
+            }
+            className={navItemClass}
+            aria-label="Profile"
+          >
+            {({ isActive }) => (
+              <Avatar
+                className={`
+                  h-7 w-7
+                  ${
+                    isActive
+                      ? `
+                        ring-2 ring-current
+                        ring-offset-1
+                        ${
+                          isDark
+                            ? "ring-offset-black"
+                            : "ring-offset-white"
+                        }
+                      `
+                      : ""
+                  }
+                `}
+              >
+                <AvatarImage
+                  src={user?.profilePicture}
+                  alt={user?.username || "Profile"}
+                  className="object-cover"
+                />
+
+                <AvatarFallback className="text-[10px]">
+                  {user?.username
+                    ?.slice(0, 2)
+                    ?.toUpperCase() || "US"}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </NavLink>
+        </nav>
+      </footer>
+
+      <CreatePost
+        open={isCreateOpen}
+        setOpen={setIsCreateOpen}
+      />
+    </>
   );
 }

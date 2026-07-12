@@ -1,48 +1,62 @@
-import React, { createContext, useEffect, useRef, useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import LeftSidebar from './LeftSidebar.jsx';
-import MobileUI from './MobileUI.jsx';
-import useTheme from '@/Redux/theme.js';
+import React, { useContext } from "react";
+import { Outlet } from "react-router-dom";
 
+import LeftSidebar from "./LeftSidebar.jsx";
+import MobileUI from "./MobileUI.jsx";
+import useTheme from "@/Redux/theme.js";
+import { ScrollContext } from "../App.jsx";
 
 export default function MainLayout() {
-
   const { themeMode } = useTheme();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 690);
+  const { scrollContainerRef } = useContext(ScrollContext);
 
-  
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 690);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-   }, []);
-
+  const isDark = themeMode === "dark";
 
   return (
-      
-    <div className="min-h-screen flex hide-scrollbar">
-      {/* Left Sidebar min-w-[200px] max-w-[250px]*/}
-     {/* Sidebar / Mobile UI */}
-      
-      {isMobile ? (
-         <div className="overflow-hidden h-screen w-screen">
-          <MobileUI/>
-        </div>
-          
-      ) : ( 
-        <>
-        <div className={`overflow-y-auto hide-scrollbar fixed top-0 left-0 w-auto h-screen border-r ${themeMode === 'dark' ? 'border-zinc-900 bg-zinc-950' : 'border-gray-300 bg-white'}`}>
-          {/* min-w-[200px] max-w-[250px] */}
-          <LeftSidebar />
-        </div>
-      
-         <div className="flex-1 flex justify-center hide-scrollbar">
-          <div className="w-full overflow-y-scroll hide-scrollbar">   
-           <Outlet />
-          </div>
-         </div>
-        </>
-      )}
+    <div
+      className={`
+        min-h-dvh w-full overflow-hidden
+        ${
+          isDark
+            ? "bg-black text-white"
+            : "bg-white text-gray-950"
+        }
+      `}
+    >
+      {/* Desktop sidebar */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-40 hidden border-r
+          md:block md:w-[72px] xl:w-[245px]
+          ${
+            isDark
+              ? "border-zinc-800 bg-black"
+              : "border-gray-200 bg-white"
+          }
+        `}
+      >
+        <LeftSidebar />
+      </aside>
+
+      {/* Mobile navigation */}
+      <div className="md:hidden">
+        <MobileUI />
+      </div>
+
+      {/* Single application outlet and scroll container */}
+      <main
+        ref={scrollContainerRef}
+        className={`
+          h-dvh w-full overflow-y-auto overflow-x-hidden
+          pt-12 pb-[calc(56px+env(safe-area-inset-bottom))]
+          md:ml-[72px] md:w-[calc(100%-72px)]
+          md:pt-0 md:pb-0
+          xl:ml-[245px] xl:w-[calc(100%-245px)]
+          ${isDark ? "bg-black" : "bg-white"}
+        `}
+      >
+        <Outlet />
+      </main>
     </div>
   );
 }
