@@ -11,7 +11,12 @@ import {
   Sun,
 } from "lucide-react";
 
-import React, { useContext, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   NavLink,
@@ -20,7 +25,12 @@ import {
 } from "react-router-dom";
 import { toast } from "sonner";
 
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.jsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "./ui/avatar.jsx";
+
 import {
   Popover,
   PopoverContent,
@@ -29,7 +39,10 @@ import {
 
 import CreatePost from "./CreatePost.jsx";
 import api from "@/Lib/api.js";
-import { setPosts, setSelectedPost } from "@/Redux/postSlice.js";
+import {
+  setPosts,
+  setSelectedPost,
+} from "@/Redux/postSlice.js";
 import { setAuthUser } from "@/Redux/authslice.js";
 import useTheme from "@/Redux/theme.js";
 import { ScrollContext } from "../App.jsx";
@@ -40,19 +53,28 @@ export default function MobileUI() {
   const dispatch = useDispatch();
 
   const { themeMode, toggleTheme } = useTheme();
-  const { scrollToTopStories } = useContext(ScrollContext);
 
-  const user = useSelector((state) => state.auth?.user);
+  const scrollContext = useContext(ScrollContext);
+  const scrollToTopStories =
+    scrollContext?.scrollToTopStories;
+
+  const user = useSelector(
+    (state) => state.auth?.user
+  );
 
   const likeNotification = useSelector(
     (state) =>
       state.realTimeNotification?.likeNotification || []
   );
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] =
+    useState(false);
+
+  const [isLoggingOut, setIsLoggingOut] =
+    useState(false);
 
   const isDark = themeMode === "dark";
+  const isHomePage = location.pathname === "/";
 
   const logoutHandler = async () => {
     if (isLoggingOut) return;
@@ -68,38 +90,116 @@ export default function MobileUI() {
         dispatch(setAuthUser(null));
 
         toast.success(res.data.message);
-        navigate("/login", { replace: true });
+
+        navigate("/login", {
+          replace: true,
+        });
       } else {
-        toast.error(res.data.message || "Logout failed");
+        toast.error(
+          res.data.message || "Logout failed"
+        );
       }
     } catch (error) {
       console.error("Logout failed:", error);
 
       toast.error(
-        error?.response?.data?.message || "Logout failed"
+        error?.response?.data?.message ||
+          "Logout failed"
       );
     } finally {
       setIsLoggingOut(false);
     }
   };
 
+  const scrollHomeToTop = useCallback(() => {
+    /*
+     * Wait for the Home page to render before scrolling.
+     * Two animation frames are more reliable than a fixed
+     * setTimeout when React Router changes the route.
+     */
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (
+          typeof scrollToTopStories === "function"
+        ) {
+          scrollToTopStories();
+          return;
+        }
+
+        /*
+         * Fallback when ScrollContext is unavailable.
+         */
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+
+        document.documentElement.scrollTo?.({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+      });
+    });
+  }, [scrollToTopStories]);
+
+  /*
+   * Scroll after React Router finishes navigating
+   * from another page to the Home page.
+   */
+  useEffect(() => {
+    const shouldScrollHome =
+      isHomePage &&
+      location.state?.scrollToHomeTop === true;
+
+    if (!shouldScrollHome) return;
+
+    scrollHomeToTop();
+
+    /*
+     * Remove temporary route state so browser refresh
+     * and back navigation do not trigger another scroll.
+     */
+    navigate("/", {
+      replace: true,
+      state: null,
+    });
+  }, [
+    isHomePage,
+    location.state,
+    navigate,
+    scrollHomeToTop,
+  ]);
+
   const handleHomeClick = () => {
-    if (location.pathname === "/") {
-      scrollToTopStories();
+    /*
+     * When already on Home, do not navigate again.
+     * Just scroll the current Home feed to the top.
+     */
+    if (isHomePage) {
+      scrollHomeToTop();
       return;
     }
 
-    navigate("/");
-
-    window.setTimeout(() => {
-      scrollToTopStories();
-    }, 100);
+    /*
+     * Pass temporary state so scrolling happens only
+     * after the Home route has rendered.
+     */
+    navigate("/", {
+      state: {
+        scrollToHomeTop: true,
+      },
+    });
   };
 
   const navItemClass = ({ isActive }) => {
     return `
-      relative flex h-12 w-12 items-center justify-center
-      bg-transparent transition-transform duration-150
+      relative flex h-12 w-12
+      cursor-pointer touch-manipulation
+      items-center justify-center
+      bg-transparent
+      transition-transform duration-150
       active:scale-90
       focus:outline-none
       focus-visible:outline-none
@@ -117,7 +217,9 @@ export default function MobileUI() {
   };
 
   const actionButtonClass = `
-    relative flex h-10 w-10 items-center justify-center
+    relative flex h-10 w-10
+    cursor-pointer touch-manipulation
+    items-center justify-center
     rounded-lg bg-transparent
     transition-transform duration-150
     active:scale-90
@@ -141,31 +243,48 @@ export default function MobileUI() {
           border-b px-3 backdrop-blur-xl
           ${
             isDark
-              ? "border-zinc-800 bg-black/95 text-white"
-              : "border-gray-200 bg-white/95 text-gray-950"
+              ? `
+                border-zinc-800
+                bg-black/95
+                text-white
+              `
+              : `
+                border-gray-200
+                bg-white/95
+                text-gray-950
+              `
           }
         `}
       >
-        {/* Logo */}
+        {/* Logo/Home button */}
         <div className="flex min-w-0 items-center">
           <button
             type="button"
             onClick={handleHomeClick}
             aria-label="Go to home"
             className="
-              flex min-w-0 items-center
+              flex min-w-0 cursor-pointer
+              touch-manipulation items-center
               bg-transparent p-0
+              transition-transform duration-150
               active:scale-[0.98]
               focus:outline-none
+              focus-visible:outline-none
               [-webkit-tap-highlight-color:transparent]
             "
           >
             <img
-              src={isDark ? "/white.png" : "/Black.png"}
+              src={
+                isDark
+                  ? "/white.png"
+                  : "/Black.png"
+              }
               alt="Instagram"
+              draggable="false"
               className="
+                pointer-events-none
                 h-8 w-auto max-w-[120px]
-                object-contain
+                select-none object-contain
               "
             />
           </button>
@@ -181,7 +300,7 @@ export default function MobileUI() {
             className={actionButtonClass}
           >
             <PlusSquare
-              className="h-6 w-6"
+              className="pointer-events-none h-6 w-6"
               strokeWidth={2}
             />
           </button>
@@ -195,19 +314,21 @@ export default function MobileUI() {
                 className={actionButtonClass}
               >
                 <Heart
-                  className="h-6 w-6"
+                  className="pointer-events-none h-6 w-6"
                   strokeWidth={2}
+                  fill="none"
                 />
 
                 {likeNotification.length > 0 && (
                   <span
                     className="
+                      pointer-events-none
                       absolute right-0.5 top-0.5
                       flex h-[17px] min-w-[17px]
                       items-center justify-center
                       rounded-full bg-red-500 px-1
-                      text-[10px] font-bold leading-none
-                      text-white
+                      text-[10px] font-bold
+                      leading-none text-white
                     "
                   >
                     {likeNotification.length > 9
@@ -222,12 +343,21 @@ export default function MobileUI() {
               align="end"
               sideOffset={8}
               className={`
-                mr-2 w-[min(320px,calc(100vw-16px))]
+                mr-2
+                w-[min(320px,calc(100vw-16px))]
                 rounded-xl border p-0 shadow-xl
                 ${
                   isDark
-                    ? "border-zinc-800 bg-zinc-950 text-white"
-                    : "border-gray-200 bg-white text-gray-950"
+                    ? `
+                      border-zinc-800
+                      bg-zinc-950
+                      text-white
+                    `
+                    : `
+                      border-gray-200
+                      bg-white
+                      text-gray-950
+                    `
                 }
               `}
             >
@@ -259,6 +389,7 @@ export default function MobileUI() {
                         }
                       `}
                       strokeWidth={1.5}
+                      fill="none"
                     />
 
                     <p className="mt-3 text-sm font-medium">
@@ -280,65 +411,76 @@ export default function MobileUI() {
                   </div>
                 ) : (
                   likeNotification.map(
-                    (notification, index) => (
-                      <button
-                        key={
-                          notification?._id ||
-                          `${notification?.userId}-${index}`
-                        }
-                        type="button"
-                        onClick={() => {
-                          const notificationUserId =
-                            notification?.userId ||
-                            notification?.userDetails?._id;
+                    (notification, index) => {
+                      const notificationUserId =
+                        notification?.userId ||
+                        notification?.userDetails?._id;
 
-                          if (notificationUserId) {
+                      const notificationUsername =
+                        notification?.userDetails
+                          ?.username || "Someone";
+
+                      const notificationImage =
+                        notification?.userDetails
+                          ?.profilePicture;
+
+                      return (
+                        <button
+                          key={
+                            notification?._id ||
+                            `${notificationUserId}-${index}`
+                          }
+                          type="button"
+                          disabled={!notificationUserId}
+                          onClick={() => {
+                            if (
+                              !notificationUserId
+                            ) {
+                              return;
+                            }
+
                             navigate(
                               `/profile/${notificationUserId}`
                             );
-                          }
-                        }}
-                        className={`
-                          flex w-full items-center gap-3
-                          rounded-lg px-2 py-2.5
-                          text-left transition-colors
-                          ${
-                            isDark
-                              ? "hover:bg-zinc-900"
-                              : "hover:bg-gray-100"
-                          }
-                        `}
-                      >
-                        <Avatar className="h-10 w-10 shrink-0">
-                          <AvatarImage
-                            src={
-                              notification?.userDetails
-                                ?.profilePicture
+                          }}
+                          className={`
+                            flex w-full items-center
+                            gap-3 rounded-lg
+                            px-2 py-2.5
+                            text-left
+                            transition-colors
+                            disabled:cursor-default
+                            ${
+                              isDark
+                                ? "hover:bg-zinc-900"
+                                : "hover:bg-gray-100"
                             }
-                            alt={
-                              notification?.userDetails
-                                ?.username || "User"
-                            }
-                            className="object-cover"
-                          />
+                          `}
+                        >
+                          <Avatar className="h-10 w-10 shrink-0">
+                            <AvatarImage
+                              src={notificationImage}
+                              alt={notificationUsername}
+                              className="object-cover"
+                            />
 
-                          <AvatarFallback className="text-xs">
-                            {notification?.userDetails
-                              ?.username
-                              ?.slice(0, 2)
-                              ?.toUpperCase() || "US"}
-                          </AvatarFallback>
-                        </Avatar>
+                            <AvatarFallback className="text-xs">
+                              {notificationUsername
+                                ?.slice(0, 2)
+                                ?.toUpperCase() ||
+                                "US"}
+                            </AvatarFallback>
+                          </Avatar>
 
-                        <p className="min-w-0 text-sm">
-                          <span className="font-semibold">
-                            {notification?.userDetails
-                              ?.username || "Someone"}
-                          </span>{" "}
-                          liked your post
-                        </p>
-                      </button>
-                    )
+                          <p className="min-w-0 text-sm">
+                            <span className="font-semibold">
+                              {notificationUsername}
+                            </span>{" "}
+                            liked your post
+                          </p>
+                        </button>
+                      );
+                    }
                   )
                 )}
               </div>
@@ -354,7 +496,7 @@ export default function MobileUI() {
                 className={actionButtonClass}
               >
                 <Menu
-                  className="h-6 w-6"
+                  className="pointer-events-none h-6 w-6"
                   strokeWidth={2}
                 />
               </button>
@@ -364,12 +506,21 @@ export default function MobileUI() {
               align="end"
               sideOffset={8}
               className={`
-                mr-2 w-52 rounded-xl border
-                p-1.5 shadow-xl
+                mr-2 w-52
+                rounded-xl border p-1.5
+                shadow-xl
                 ${
                   isDark
-                    ? "border-zinc-800 bg-zinc-950 text-white"
-                    : "border-gray-200 bg-white text-gray-950"
+                    ? `
+                      border-zinc-800
+                      bg-zinc-950
+                      text-white
+                    `
+                    : `
+                      border-gray-200
+                      bg-white
+                      text-gray-950
+                    `
                 }
               `}
             >
@@ -377,7 +528,8 @@ export default function MobileUI() {
                 type="button"
                 onClick={toggleTheme}
                 className={`
-                  flex w-full items-center gap-3
+                  flex w-full cursor-pointer
+                  items-center gap-3
                   rounded-lg px-3 py-2.5
                   text-sm transition-colors
                   ${
@@ -394,7 +546,9 @@ export default function MobileUI() {
                 )}
 
                 <span>
-                  {isDark ? "Light mode" : "Dark mode"}
+                  {isDark
+                    ? "Light mode"
+                    : "Dark mode"}
                 </span>
               </button>
 
@@ -414,6 +568,7 @@ export default function MobileUI() {
                 `}
               >
                 <Info className="h-5 w-5" />
+
                 <span>About developer</span>
               </a>
 
@@ -452,11 +607,20 @@ export default function MobileUI() {
       <footer
         className={`
           fixed inset-x-0 bottom-0 z-50
-          border-t pb-[env(safe-area-inset-bottom)]
+          border-t
+          pb-[env(safe-area-inset-bottom)]
           ${
             isDark
-              ? "border-zinc-800 bg-black text-white"
-              : "border-gray-200 bg-white text-gray-950"
+              ? `
+                border-zinc-800
+                bg-black
+                text-white
+              `
+              : `
+                border-gray-200
+                bg-white
+                text-gray-950
+              `
           }
         `}
       >
@@ -472,16 +636,21 @@ export default function MobileUI() {
             type="button"
             onClick={handleHomeClick}
             aria-label="Home"
+            aria-current={
+              isHomePage ? "page" : undefined
+            }
             className={`
               relative flex h-12 w-12
+              cursor-pointer touch-manipulation
               items-center justify-center
-              bg-transparent transition-transform
-              duration-150 active:scale-90
+              bg-transparent
+              transition-transform duration-150
+              active:scale-90
               focus:outline-none
               focus-visible:outline-none
               [-webkit-tap-highlight-color:transparent]
               ${
-                location.pathname === "/"
+                isHomePage
                   ? isDark
                     ? "text-white"
                     : "text-black"
@@ -492,15 +661,9 @@ export default function MobileUI() {
             `}
           >
             <Home
-              className="h-6 w-6"
-              strokeWidth={
-                location.pathname === "/" ? 2.6 : 2
-              }
-              fill={
-                location.pathname === "/"
-                  ? "currentColor"
-                  : "none"
-              }
+              className="pointer-events-none h-6 w-6"
+              strokeWidth={isHomePage ? 2.8 : 2}
+              fill="none"
             />
           </button>
 
@@ -512,7 +675,7 @@ export default function MobileUI() {
           >
             {({ isActive }) => (
               <Search
-                className="h-6 w-6"
+                className="pointer-events-none h-6 w-6"
                 strokeWidth={isActive ? 2.8 : 2}
               />
             )}
@@ -525,9 +688,11 @@ export default function MobileUI() {
             aria-label="Create post"
             className={`
               relative flex h-12 w-12
+              cursor-pointer touch-manipulation
               items-center justify-center
-              bg-transparent transition-transform
-              duration-150 active:scale-90
+              bg-transparent
+              transition-transform duration-150
+              active:scale-90
               focus:outline-none
               focus-visible:outline-none
               [-webkit-tap-highlight-color:transparent]
@@ -539,7 +704,7 @@ export default function MobileUI() {
             `}
           >
             <PlusSquare
-              className="h-6 w-6"
+              className="pointer-events-none h-6 w-6"
               strokeWidth={2}
             />
           </button>
@@ -552,7 +717,7 @@ export default function MobileUI() {
           >
             {({ isActive }) => (
               <MessageCircle
-                className="h-6 w-6"
+                className="pointer-events-none h-6 w-6"
                 strokeWidth={isActive ? 2.8 : 2}
                 fill="none"
               />
@@ -572,7 +737,7 @@ export default function MobileUI() {
             {({ isActive }) => (
               <Avatar
                 className={`
-                  h-7 w-7
+                  pointer-events-none h-7 w-7
                   ${
                     isActive
                       ? `
@@ -590,7 +755,9 @@ export default function MobileUI() {
               >
                 <AvatarImage
                   src={user?.profilePicture}
-                  alt={user?.username || "Profile"}
+                  alt={
+                    user?.username || "Profile"
+                  }
                   className="object-cover"
                 />
 
